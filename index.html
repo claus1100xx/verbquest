@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>⚡ Verb Quest — German Training Arc ⚡</title>
+<!-- iPad / iOS: let her "Add to Home Screen" and play fullscreen like an app -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Verb Quest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0b1026">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230b1026'/><path d='M56 8 L28 56 H46 L40 92 L74 40 H54 Z' fill='%23ffd23f'/></svg>">
+<style>
+  :root{
+    --bg:#0b1026; --bg2:#141b3a;
+    --ink:#f5f7ff; --muted:#9aa6d6;
+    --blue:#2ec5ff; --pink:#ff3d7f; --gold:#ffd23f; --green:#37e29a; --red:#ff5566;
+    --card:#1a2348; --card2:#222d5e; --line:#33407e;
+    --shadow:0 12px 40px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0; height:100%}
+  body{
+    font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;
+    background:radial-gradient(1200px 800px at 50% -10%, #1b2552 0%, var(--bg) 60%);
+    color:var(--ink); overflow-x:hidden; min-height:100%;
+    display:flex; align-items:flex-start; justify-content:center;
+    /* iPad/touch: no rubber-band scroll, no double-tap zoom, no long-press text menus */
+    overscroll-behavior:none; touch-action:manipulation;
+    -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;
+    -webkit-text-size-adjust:100%;
+  }
+  /* keep the verb-review list readable & copyable */
+  .review,.review *{-webkit-user-select:text; user-select:text}
+  /* anime speed-lines background */
+  body::before{
+    content:""; position:fixed; inset:-50%; z-index:0; pointer-events:none; opacity:.10;
+    background:repeating-conic-gradient(from 0deg at 50% 50%,
+      transparent 0deg, transparent 2.5deg, var(--blue) 2.6deg, transparent 3deg);
+    animation:spin 60s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  #app{position:relative; z-index:1; width:100%; max-width:680px;
+    padding:calc(18px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right))
+            calc(40px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}
+
+  .screen{display:none; animation:pop .35s ease}
+  .screen.active{display:block}
+  @keyframes pop{from{opacity:0; transform:translateY(14px) scale(.98)} to{opacity:1; transform:none}}
+
+  h1{font-size:clamp(34px,9vw,58px); margin:.1em 0; line-height:.95;
+     font-style:italic; letter-spacing:-1px; text-transform:uppercase;
+     background:linear-gradient(90deg,var(--gold),var(--pink),var(--blue));
+     -webkit-background-clip:text; background-clip:text; color:transparent;
+     text-shadow:0 4px 0 rgba(0,0,0,.25); filter:drop-shadow(0 6px 14px rgba(255,61,127,.25))}
+  .tag{color:var(--muted); font-weight:bold; letter-spacing:2px; text-transform:uppercase; font-size:13px}
+  .sub{color:var(--muted); margin:.3em 0 1.2em}
+
+  .panel{background:linear-gradient(180deg,var(--card),var(--card2));
+    border:2px solid var(--line); border-radius:20px; padding:18px; box-shadow:var(--shadow); margin-bottom:16px}
+
+  .label{font-size:12px; text-transform:uppercase; letter-spacing:1.5px; color:var(--muted); font-weight:bold; margin:0 0 8px}
+
+  .seg{display:flex; gap:8px; flex-wrap:wrap}
+  .seg button{flex:1 1 auto; min-width:64px; padding:11px 10px; border-radius:12px; cursor:pointer;
+    border:2px solid var(--line); background:#0e1430; color:var(--ink); font-weight:bold; font-size:15px; transition:.12s}
+  .seg button:hover{border-color:var(--blue)}
+  .seg button.on{background:linear-gradient(180deg,var(--blue),#1488c7); border-color:var(--blue); color:#03101c; box-shadow:0 6px 18px rgba(46,197,255,.35)}
+
+  .btn{display:block; width:100%; padding:18px; font-size:22px; font-weight:bold; cursor:pointer;
+    border:none; border-radius:18px; color:#0a0f24; text-transform:uppercase; letter-spacing:1px;
+    background:linear-gradient(180deg,var(--gold),#f5a623); box-shadow:0 8px 0 #b9791a, var(--shadow); transition:.08s}
+  .btn:active{transform:translateY(5px); box-shadow:0 3px 0 #b9791a}
+  .btn.alt{background:linear-gradient(180deg,var(--blue),#1488c7); box-shadow:0 8px 0 #0c5e8c, var(--shadow); color:#03101c}
+  .btn.ghost{background:#0e1430; color:var(--ink); box-shadow:0 8px 0 #0a0f24, var(--shadow); border:2px solid var(--line)}
+  .btn.small{font-size:16px; padding:13px}
+
+  .row{display:flex; gap:12px; align-items:center}
+  .grow{flex:1}
+
+  /* battle hud */
+  .hud{display:flex; gap:12px; align-items:center; margin-bottom:14px}
+  .boss-ava{font-size:42px; width:66px; height:66px; flex:0 0 66px; display:grid; place-items:center;
+    background:radial-gradient(circle at 40% 30%, #3a2160, #1a1030); border:2px solid var(--pink); border-radius:50%;
+    box-shadow:0 0 22px rgba(255,61,127,.4)}
+  .bar{height:16px; border-radius:10px; background:#0a0f24; border:2px solid var(--line); overflow:hidden; position:relative}
+  .bar>i{display:block; height:100%; border-radius:8px; transition:width .5s cubic-bezier(.2,.9,.3,1)}
+  .hp>i{background:linear-gradient(90deg,#ff8a5b,var(--red))}
+  .sp>i{background:linear-gradient(90deg,#5be3ff,var(--blue))}
+  .barwrap{flex:1}
+  .barwrap small{display:flex; justify-content:space-between; color:var(--muted); font-size:12px; font-weight:bold; margin-bottom:4px}
+
+  .scoreline{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; gap:10px}
+  .power{font-size:13px; color:var(--muted); font-weight:bold; text-transform:uppercase; letter-spacing:1px}
+  .power b{display:block; font-size:26px; color:var(--gold); font-style:italic}
+  .combo{font-weight:bold; font-size:18px; color:var(--pink); text-align:right; min-height:24px}
+  .combo.zero{color:var(--muted); opacity:.5}
+
+  .qcard{background:linear-gradient(180deg,#11193c,#0c1330); border:2px solid var(--line);
+    border-radius:20px; padding:22px 18px; text-align:center; box-shadow:var(--shadow); margin-bottom:16px; position:relative}
+  .qkind{font-size:12px; text-transform:uppercase; letter-spacing:2px; color:var(--gold); font-weight:bold; margin-bottom:10px}
+  .qprompt{font-size:clamp(26px,7vw,40px); font-weight:bold; font-style:italic; line-height:1.1}
+  .qhint{color:var(--muted); margin-top:8px; font-size:16px}
+  .qprogress{position:absolute; top:12px; right:14px; font-size:12px; color:var(--muted); font-weight:bold}
+
+  .answers{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+  .answers.two{grid-template-columns:1fr 1fr}
+  .ans{position:relative; padding:18px 14px 18px 46px; font-size:19px; font-weight:bold; text-align:left;
+    border:2px solid var(--line); border-radius:16px; background:#0e1430; color:var(--ink); cursor:pointer; transition:.12s}
+  .ans:hover:not(:disabled){border-color:var(--blue); transform:translateY(-2px)}
+  .ans:disabled{cursor:default}
+  .ans .num{position:absolute; left:12px; top:50%; transform:translateY(-50%); width:24px; height:24px; border-radius:7px;
+    background:var(--card2); display:grid; place-items:center; font-size:13px; color:var(--muted)}
+  .ans.correct{background:linear-gradient(180deg,#1f8f63,#147a52); border-color:var(--green); color:#fff}
+  .ans.wrong{background:linear-gradient(180deg,#a32b3c,#7e2230); border-color:var(--red); color:#fff}
+  .ans.correct .num,.ans.wrong .num{background:rgba(0,0,0,.25); color:#fff}
+
+  .feedback{min-height:64px; margin-top:14px; text-align:center; display:flex; flex-direction:column; gap:8px; align-items:center; justify-content:center}
+  .fbmsg{font-size:24px; font-weight:bold; font-style:italic}
+  .fbmsg.good{color:var(--green)} .fbmsg.bad{color:var(--red)}
+  .fbsmall{color:var(--muted); font-size:15px}
+
+  /* special move flash */
+  .special{position:fixed; inset:0; z-index:50; display:none; place-items:center; pointer-events:none;
+    background:radial-gradient(circle, rgba(255,210,63,.25), rgba(11,16,38,.0) 60%)}
+  .special.show{display:grid; animation:flash .9s ease}
+  .special b{font-size:clamp(40px,12vw,90px); font-style:italic; text-transform:uppercase; color:var(--gold);
+    text-shadow:0 0 30px rgba(255,210,63,.8),0 8px 0 #b9791a; transform:rotate(-6deg)}
+  @keyframes flash{0%{opacity:0; transform:scale(.5)} 25%{opacity:1; transform:scale(1.1)} 70%{opacity:1} 100%{opacity:0}}
+  @keyframes shake{0%,100%{transform:none}20%{transform:translate(-8px,4px)}40%{transform:translate(8px,-4px)}60%{transform:translate(-6px,-3px)}80%{transform:translate(6px,3px)}}
+  .shake{animation:shake .4s}
+
+  /* results */
+  .big{font-size:clamp(30px,8vw,46px); font-style:italic; text-transform:uppercase; margin:.1em 0}
+  .stats{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:14px 0}
+  .stat{background:#0e1430; border:2px solid var(--line); border-radius:14px; padding:14px; text-align:center}
+  .stat b{display:block; font-size:30px; font-style:italic}
+  .stat span{font-size:12px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); font-weight:bold}
+  .stat.gold b{color:var(--gold)} .stat.blue b{color:var(--blue)} .stat.pink b{color:var(--pink)} .stat.green b{color:var(--green)}
+
+  .badges{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+  .badge{background:#0e1430; border:2px solid var(--gold); border-radius:12px; padding:8px 12px; font-weight:bold; font-size:14px}
+  .badge.locked{border-color:var(--line); color:var(--muted); opacity:.55}
+
+  .review{margin-top:8px; max-height:none}
+  .review .item{background:#0e1430; border:2px solid var(--line); border-left:5px solid var(--pink);
+    border-radius:12px; padding:10px 14px; margin-bottom:8px; text-align:left}
+  .review .item .w{font-size:19px; font-weight:bold}
+  .review .item .w em{color:var(--muted); font-weight:normal; font-style:normal; font-size:15px}
+  .review .item .f{color:var(--blue); font-size:14px; margin-top:3px; font-weight:bold}
+  .review .item .f .aux{color:var(--gold)}
+
+  .perfectbanner{background:linear-gradient(90deg,var(--gold),var(--pink)); color:#0a0f24; font-weight:bold;
+    text-align:center; padding:12px; border-radius:14px; font-size:18px; margin-bottom:12px; font-style:italic; text-transform:uppercase}
+
+  .footer{text-align:center; color:var(--muted); font-size:12px; margin-top:18px; line-height:1.6}
+  .sound-toggle{display:flex; align-items:center; justify-content:space-between}
+  a{color:var(--blue)}
+
+  /* ===== extra graphics & effects ===== */
+  /* drifting aurora glow behind everything */
+  body::after{content:""; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.5;
+    background:
+      radial-gradient(420px 300px at 12% 18%, rgba(255,61,127,.16), transparent 70%),
+      radial-gradient(460px 320px at 88% 12%, rgba(46,197,255,.16), transparent 70%),
+      radial-gradient(520px 360px at 70% 95%, rgba(255,210,63,.12), transparent 70%);
+    animation:drift 16s ease-in-out infinite alternate;}
+  @keyframes drift{from{transform:translate3d(-12px,-8px,0) scale(1)} to{transform:translate3d(14px,10px,0) scale(1.08)}}
+
+  /* particle + confetti canvas */
+  #fx{position:fixed; inset:0; z-index:45; pointer-events:none}
+  /* full-screen colour flash on hit */
+  #flash{position:fixed; inset:0; z-index:44; pointer-events:none; opacity:0; mix-blend-mode:screen}
+  #flash.go{animation:flashfade .45s ease-out}
+  @keyframes flashfade{0%{opacity:.55}100%{opacity:0}}
+
+  /* floating damage / score popups */
+  .dmg{position:fixed; z-index:48; transform:translate(-50%,-50%); font-weight:bold; font-style:italic;
+    font-size:30px; pointer-events:none; text-shadow:0 2px 0 rgba(0,0,0,.5),0 0 16px currentColor;
+    animation:dmgrise 1s ease-out forwards}
+  .dmg.gold{color:var(--gold)} .dmg.green{color:var(--green)} .dmg.red{color:var(--red)} .dmg.blue{color:var(--blue)}
+  @keyframes dmgrise{0%{opacity:0; transform:translate(-50%,-30%) scale(.5)}
+    20%{opacity:1; transform:translate(-50%,-60%) scale(1.25)}
+    100%{opacity:0; transform:translate(-50%,-160%) scale(1)}}
+
+  /* boss avatar reactions */
+  .boss-ava{transition:transform .12s}
+  .boss-ava.hit{animation:bosshit .4s; box-shadow:0 0 30px rgba(255,85,102,.9)!important}
+  @keyframes bosshit{0%{transform:none}25%{transform:translateX(-7px) scale(1.12); filter:brightness(2) hue-rotate(-30deg)}
+    50%{transform:translateX(6px) scale(.94)}75%{transform:translateX(-3px)}100%{transform:none}}
+  .boss-ava.ko{animation:bossko .9s forwards}
+  @keyframes bossko{0%{transform:none}30%{transform:scale(1.3) rotate(8deg); filter:brightness(2.5)}
+    100%{transform:scale(0) rotate(380deg); opacity:0; filter:brightness(3)}}
+  .boss-ava.idle{animation:bossidle 2.4s ease-in-out infinite}
+  @keyframes bossidle{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+  /* combo counter pop + glow as it climbs */
+  .combo.pop{animation:combopop .35s}
+  @keyframes combopop{0%{transform:scale(1)}40%{transform:scale(1.5); text-shadow:0 0 18px var(--pink)}100%{transform:scale(1)}}
+
+  /* answer button hit ripple */
+  .ans.correct{animation:goodpulse .4s}
+  .ans.wrong{animation:shake .4s}
+  @keyframes goodpulse{0%{transform:scale(1)}40%{transform:scale(1.06); box-shadow:0 0 24px var(--green)}100%{transform:scale(1)}}
+
+  /* special move shockwave ring */
+  .special b{position:relative}
+  .ring{position:fixed; left:50%; top:50%; z-index:49; pointer-events:none; width:40px; height:40px;
+    border:6px solid var(--gold); border-radius:50%; transform:translate(-50%,-50%); opacity:0}
+  .ring.go{animation:ringblast .7s ease-out}
+  @keyframes ringblast{0%{opacity:.9; width:40px; height:40px; border-width:10px}
+    100%{opacity:0; width:120vmax; height:120vmax; border-width:1px}}
+
+  /* qcard entrance + power number pop */
+  .qcard{animation:cardin .35s ease}
+  @keyframes cardin{from{opacity:0; transform:translateY(10px) rotateX(8deg)}to{opacity:1; transform:none}}
+  .power b.tick{animation:tick .25s}
+  @keyframes tick{0%{transform:scale(1)}50%{transform:scale(1.35); color:#fff}100%{transform:scale(1)}}
+
+  /* title shimmer on home */
+  h1{background-size:200% auto; animation:shimmer 5s linear infinite}
+  @keyframes shimmer{to{background-position:200% center}}
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ================= HOME ================= -->
+  <section id="home" class="screen active">
+    <div class="tag">⚔️ German Training Arc</div>
+    <h1>Verb Quest</h1>
+    <p class="sub">Beat the bosses by mastering your 60 irregular verbs. Build combos, power up, and become a Verb Master before the test! 🔥</p>
+
+    <div class="panel">
+      <p class="label">Mission length</p>
+      <div class="seg" id="lenSeg">
+        <button data-len="10" class="on">10 ⚡</button>
+        <button data-len="20">20 ⚡⚡</button>
+        <button data-len="60">All 60 🐉</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="label">What to train</p>
+      <div class="seg" id="modeSeg">
+        <button data-mode="all" class="on">Everything</button>
+        <button data-mode="forms">Verb forms</button>
+        <button data-mode="aux">sein / haben</button>
+        <button data-mode="trans">Translation</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="sound-toggle">
+        <span class="label" style="margin:0">Sound effects</span>
+        <div class="seg" style="flex:0 0 auto" id="soundSeg">
+          <button data-snd="1" class="on">🔊 On</button>
+          <button data-snd="0">🔇 Off</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn" id="startBtn">▶ Start Training</button>
+
+    <div class="panel" style="margin-top:16px">
+      <p class="label">Your trainer card</p>
+      <div class="row">
+        <div class="boss-ava" id="rankEmoji">🥚</div>
+        <div class="grow">
+          <div style="font-size:20px; font-weight:bold; font-style:italic" id="rankName">Rookie</div>
+          <div class="power" style="margin-top:2px">Best power level <b style="display:inline; font-size:18px" id="bestPower">0</b> · <span id="totalCorrect">0</span> verbs mastered</div>
+        </div>
+      </div>
+      <p class="label" style="margin-top:14px">Ranks unlocked</p>
+      <div class="badges" id="rankShelf"></div>
+    </div>
+    <div class="footer">Tip: tap an answer, or press <b>1–4</b> on the keyboard. Press <b>Enter</b> to continue.<br>Made with ❤️ for German practice.</div>
+  </section>
+
+  <!-- ================= BATTLE ================= -->
+  <section id="battle" class="screen">
+    <div class="hud">
+      <div class="boss-ava" id="bossAva">🏴‍☠️</div>
+      <div class="barwrap">
+        <small><span id="bossName">Boss</span><span id="bossHpTxt">100%</span></small>
+        <div class="bar hp"><i id="bossHp" style="width:100%"></i></div>
+        <small style="margin-top:6px"><span>Your spirit</span><span id="spTxt">100%</span></small>
+        <div class="bar sp"><i id="sp" style="width:100%"></i></div>
+      </div>
+    </div>
+
+    <div class="scoreline">
+      <div class="power">Power level<b id="power">0</b></div>
+      <div class="combo zero" id="combo">No combo</div>
+    </div>
+
+    <div class="qcard">
+      <div class="qprogress" id="progress">1 / 10</div>
+      <div class="qkind" id="qkind">Präteritum</div>
+      <div class="qprompt" id="qprompt">anfangen</div>
+      <div class="qhint" id="qhint">to begin</div>
+    </div>
+
+    <div class="answers" id="answers"></div>
+
+    <div class="feedback" id="feedback"></div>
+    <button class="btn alt small" id="nextBtn" style="display:none">Weiter ▶</button>
+  </section>
+
+  <!-- ================= RESULTS ================= -->
+  <section id="results" class="screen">
+    <div class="tag" id="resTag">Round complete</div>
+    <h1 class="big" id="resTitle">Victory!</h1>
+    <div id="perfectBanner" class="perfectbanner" style="display:none">⭐ FLAWLESS VICTORY — every answer correct! ⭐</div>
+
+    <div class="stats">
+      <div class="stat gold"><b id="rScore">0</b><span>Power level</span></div>
+      <div class="stat green"><b id="rPct">0%</b><span>Correct</span></div>
+      <div class="stat pink"><b id="rCombo">0</b><span>Best combo</span></div>
+      <div class="stat blue"><b id="rRight">0/0</b><span>Verbs hit</span></div>
+    </div>
+
+    <div class="panel" id="earnedPanel">
+      <p class="label">🏅 Achievements this round</p>
+      <div class="badges" id="earned"></div>
+    </div>
+
+    <div class="panel" id="reviewPanel">
+      <p class="label">📖 Verbs to review (study these!)</p>
+      <div class="review" id="review"></div>
+    </div>
+
+    <button class="btn" id="retryBtn" style="display:none">🔁 Retry the ones I missed</button>
+    <div style="height:12px"></div>
+    <button class="btn alt" id="againBtn">⚔️ New mission</button>
+    <div style="height:12px"></div>
+    <button class="btn ghost small" id="homeBtn">🏠 Home</button>
+  </section>
+
+</div>
+
+<div class="special" id="special"><b id="specialTxt">⚡ Special Move! ⚡</b></div>
+<div class="ring" id="ring"></div>
+<div id="flash"></div>
+<canvas id="fx"></canvas>
+
+<script>
+/* ---------------- DATA ---------------- */
+const VERBS = [{"n":1,"inf":"anfangen","present":"fängt an","perfect":"hat angefangen","praet":"fing an","en":"to begin","aux":"hat"},{"n":2,"inf":"anhalten","present":"hält an","perfect":"hat angehalten","praet":"hielt an","en":"to stop","aux":"hat"},{"n":3,"inf":"ankommen","present":"kommt an","perfect":"ist angekommen","praet":"kam an","en":"to arrive","aux":"ist"},{"n":4,"inf":"anrufen","present":"ruft an","perfect":"hat angerufen","praet":"rief an","en":"to call/phone","aux":"hat"},{"n":5,"inf":"aufstehen","present":"steht auf","perfect":"ist aufgestanden","praet":"stand auf","en":"to get up","aux":"ist"},{"n":6,"inf":"aussehen","present":"sieht aus","perfect":"hat ausgesehen","praet":"sah aus","en":"to look/appear","aux":"hat"},{"n":7,"inf":"backen","present":"bäckt/backt","perfect":"hat gebacken","praet":"buk/backte","en":"to bake","aux":"hat"},{"n":8,"inf":"bekommen","present":"bekommt","perfect":"hat bekommen","praet":"bekam","en":"to receive/get","aux":"hat"},{"n":9,"inf":"bleiben","present":"bleibt","perfect":"ist geblieben","praet":"blieb","en":"to stay/remain","aux":"ist"},{"n":10,"inf":"brechen","present":"bricht","perfect":"hat gebrochen","praet":"brach","en":"to break","aux":"hat"},{"n":11,"inf":"einladen","present":"lädt ein","perfect":"hat eingeladen","praet":"lud ein","en":"to invite","aux":"hat"},{"n":12,"inf":"erfahren","present":"erfährt","perfect":"hat erfahren","praet":"erfuhr","en":"to find out/experience","aux":"hat"},{"n":13,"inf":"essen","present":"isst","perfect":"hat gegessen","praet":"aß","en":"to eat (humans)","aux":"hat"},{"n":14,"inf":"fahren","present":"fährt","perfect":"ist gefahren","praet":"fuhr","en":"to drive/travel","aux":"ist"},{"n":15,"inf":"fangen","present":"fängt","perfect":"hat gefangen","praet":"fing","en":"to catch","aux":"hat"},{"n":16,"inf":"fernsehen","present":"sieht fern","perfect":"hat ferngesehen","praet":"sah fern","en":"to watch TV","aux":"hat"},{"n":17,"inf":"finden","present":"findet","perfect":"hat gefunden","praet":"fand","en":"to find/consider","aux":"hat"},{"n":18,"inf":"fliegen","present":"fliegt","perfect":"ist geflogen","praet":"flog","en":"to fly","aux":"ist"},{"n":19,"inf":"fressen","present":"frisst","perfect":"hat gefressen","praet":"fraß","en":"to eat (animals)/devour","aux":"hat"},{"n":20,"inf":"geben","present":"gibt","perfect":"hat gegeben","praet":"gab","en":"to give","aux":"hat"},{"n":21,"inf":"gehen","present":"geht","perfect":"ist gegangen","praet":"ging","en":"to go/walk","aux":"ist"},{"n":22,"inf":"gefallen","present":"gefällt","perfect":"hat gefallen","praet":"gefiel","en":"to please/like","aux":"hat"},{"n":23,"inf":"gewinnen","present":"gewinnt","perfect":"hat gewonnen","praet":"gewann","en":"to win/gain","aux":"hat"},{"n":24,"inf":"helfen","present":"hilft","perfect":"hat geholfen","praet":"half","en":"to help","aux":"hat"},{"n":25,"inf":"kommen","present":"kommt","perfect":"ist gekommen","praet":"kam","en":"to come","aux":"ist"},{"n":26,"inf":"laufen","present":"läuft","perfect":"ist gelaufen","praet":"lief","en":"to run/walk","aux":"ist"},{"n":27,"inf":"lesen","present":"liest","perfect":"hat gelesen","praet":"las","en":"to read","aux":"hat"},{"n":28,"inf":"liegen","present":"liegt","perfect":"hat gelegen","praet":"lag","en":"to lie/be located","aux":"hat"},{"n":29,"inf":"hinfallen","present":"fällt hin","perfect":"ist hingefallen","praet":"fiel hin","en":"to fall down","aux":"ist"},{"n":30,"inf":"messen","present":"misst","perfect":"hat gemessen","praet":"maß","en":"to measure","aux":"hat"},{"n":31,"inf":"frieren","present":"friert","perfect":"hat gefroren","praet":"fror","en":"to freeze/be cold","aux":"hat"},{"n":32,"inf":"reiten","present":"reitet","perfect":"ist geritten","praet":"ritt","en":"to ride (a horse)","aux":"ist"},{"n":33,"inf":"schlafen","present":"schläft","perfect":"hat geschlafen","praet":"schlief","en":"to sleep","aux":"hat"},{"n":34,"inf":"schreiben","present":"schreibt","perfect":"hat geschrieben","praet":"schrieb","en":"to write","aux":"hat"},{"n":35,"inf":"schwimmen","present":"schwimmt","perfect":"ist geschwommen","praet":"schwamm","en":"to swim","aux":"ist"},{"n":36,"inf":"sehen","present":"sieht","perfect":"hat gesehen","praet":"sah","en":"to see","aux":"hat"},{"n":37,"inf":"sein","present":"ist","perfect":"ist gewesen","praet":"war","en":"to be","aux":"ist"},{"n":38,"inf":"sitzen","present":"sitzt","perfect":"hat gesessen","praet":"saß","en":"to sit","aux":"hat"},{"n":39,"inf":"sprechen","present":"spricht","perfect":"hat gesprochen","praet":"sprach","en":"to speak/talk","aux":"hat"},{"n":40,"inf":"springen","present":"springt","perfect":"ist gesprungen","praet":"sprang","en":"to jump/leap","aux":"ist"},{"n":41,"inf":"streiten","present":"streitet","perfect":"hat gestritten","praet":"stritt","en":"to argue/quarrel","aux":"hat"},{"n":42,"inf":"treffen","present":"trifft","perfect":"hat getroffen","praet":"traf","en":"to meet/hit","aux":"hat"},{"n":43,"inf":"trinken","present":"trinkt","perfect":"hat getrunken","praet":"trank","en":"to drink","aux":"hat"},{"n":44,"inf":"umziehen","present":"zieht um","perfect":"ist umgezogen","praet":"zog um","en":"to move house/change clothes","aux":"ist"},{"n":45,"inf":"verlieren","present":"verliert","perfect":"hat verloren","praet":"verlor","en":"to lose","aux":"hat"},{"n":46,"inf":"verschreiben","present":"verschreibt","perfect":"hat verschrieben","praet":"verschrieb","en":"to prescribe/misspell","aux":"hat"},{"n":47,"inf":"waschen","present":"wäscht","perfect":"hat gewaschen","praet":"wusch","en":"to wash","aux":"hat"},{"n":48,"inf":"wehtun","present":"tut weh","perfect":"hat wehgetan","praet":"tat weh","en":"to hurt/cause pain","aux":"hat"},{"n":49,"inf":"werden","present":"wird","perfect":"ist geworden","praet":"wurde","en":"to become","aux":"ist"},{"n":50,"inf":"werfen","present":"wirft","perfect":"hat geworfen","praet":"warf","en":"to throw","aux":"hat"},{"n":51,"inf":"zusammenhalten","present":"hält zusammen","perfect":"hat zusammengehalten","praet":"hielt zusammen","en":"to stick/hold together","aux":"hat"},{"n":52,"inf":"bringen","present":"bringt","perfect":"hat gebracht","praet":"brachte","en":"to bring/take","aux":"hat"},{"n":53,"inf":"denken","present":"denkt","perfect":"hat gedacht","praet":"dachte","en":"to think","aux":"hat"},{"n":54,"inf":"erkennen","present":"erkennt","perfect":"hat erkannt","praet":"erkannte","en":"to recognize/identify","aux":"hat"},{"n":55,"inf":"verbringen","present":"verbringt","perfect":"hat verbracht","praet":"verbrachte","en":"to spend (time)","aux":"hat"},{"n":56,"inf":"wissen","present":"weiß","perfect":"hat gewusst","praet":"wusste","en":"to know (a fact)","aux":"hat"},{"n":57,"inf":"dürfen","present":"darf","perfect":"hat gedurft","praet":"durfte","en":"to be allowed to/may","aux":"hat"},{"n":58,"inf":"können","present":"kann","perfect":"hat gekonnt","praet":"konnte","en":"to be able to/can","aux":"hat"},{"n":59,"inf":"müssen","present":"muss","perfect":"hat gemusst","praet":"musste","en":"to have to/must","aux":"hat"},{"n":60,"inf":"wollen","present":"will","perfect":"hat gewollt","praet":"wollte","en":"to want to","aux":"hat"}];
+
+/* ---------------- BOSSES ---------------- */
+const BOSSES = [
+  {name:"Captain Kuro-Beard", ava:"🏴‍☠️"},
+  {name:"Cursed Spirit", ava:"👹"},
+  {name:"Shadow Ninja", ava:"🥷"},
+  {name:"Wildfire Striker", ava:"⚽"},
+  {name:"The Goalkeeper Wall", ava:"🧤"},
+  {name:"Sorcerer of Six Eyes", ava:"👁️"},
+  {name:"Dragon Sensei", ava:"🐉"}
+];
+
+/* ---------------- RANKS ---------------- */
+const RANKS = [
+  {t:0,   name:"Rookie",            emoji:"🥚"},
+  {t:15,  name:"Leaf Genin",        emoji:"🍃"},
+  {t:35,  name:"Straw-Hat Crew",    emoji:"🏴‍☠️"},
+  {t:60,  name:"Jujutsu Sorcerer",  emoji:"👁️"},
+  {t:90,  name:"Blue Lock Striker", emoji:"⚽"},
+  {t:130, name:"Captain's Spirit",  emoji:"🔥"},
+  {t:180, name:"Hokage",            emoji:"🌀"},
+  {t:250, name:"Verb Grandmaster",  emoji:"🐉"}
+];
+
+/* ---------------- SAVE ---------------- */
+const SAVE_KEY="vq_save_v1";
+let SAVE = load();
+function load(){
+  try{ return Object.assign({bestPower:0,totalCorrect:0,sound:true}, JSON.parse(localStorage.getItem(SAVE_KEY)||"{}")); }
+  catch(e){ return {bestPower:0,totalCorrect:0,sound:true}; }
+}
+function persist(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); }catch(e){} }
+
+/* ---------------- HELPERS ---------------- */
+const $=s=>document.querySelector(s);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const pick=(arr,n)=>shuffle(arr).slice(0,n);
+function distractors(field,correct,n){
+  const pool=[...new Set(VERBS.map(v=>v[field]))].filter(x=>x&&x!==correct);
+  return pick(pool,n);
+}
+function participle(perfect){ return perfect.replace(/^(hat|ist)\s+/,""); }
+
+/* ---------------- QUESTION BUILDING ---------------- */
+const TYPE_SETS={
+  all:["praet","perfect","present","aux","de2en","en2de"],
+  forms:["praet","perfect","present"],
+  aux:["aux"],
+  trans:["de2en","en2de"]
+};
+function makeQuestion(v,type){
+  let kind,prompt,hint,correct,opts;
+  if(type==="praet"){
+    kind="Präteritum (simple past)"; prompt=v.inf; hint=v.en+" — what's the past tense?";
+    correct=v.praet; opts=shuffle([correct,...distractors("praet",correct,3)]);
+  }else if(type==="perfect"){
+    kind="Perfekt (perfect tense)"; prompt=v.inf; hint=v.en+" — what's the full perfect?";
+    correct=v.perfect; opts=shuffle([correct,...distractors("perfect",correct,3)]);
+  }else if(type==="present"){
+    kind="Präsens — er / sie / es"; prompt=v.inf; hint=v.en+" — how does 'he/she' say it?";
+    correct=v.present; opts=shuffle([correct,...distractors("present",correct,3)]);
+  }else if(type==="aux"){
+    kind="sein oder haben?"; prompt="___ "+participle(v.perfect); hint=v.inf+" ("+v.en+") — which helper verb?";
+    correct=v.aux; opts=["hat","ist"];
+  }else if(type==="de2en"){
+    kind="What does it mean?"; prompt=v.inf; hint="Pick the English meaning";
+    correct=v.en; opts=shuffle([correct,...distractors("en",correct,3)]);
+  }else{ // en2de
+    kind="Which German verb?"; prompt=v.en; hint="Pick the German infinitive";
+    correct=v.inf; opts=shuffle([correct,...distractors("inf",correct,3)]);
+  }
+  return {v,type,kind,prompt,hint,correct,opts};
+}
+function buildRound(verbs,types){
+  return verbs.map(v=> makeQuestion(v, types[Math.floor(Math.random()*types.length)]) );
+}
+
+/* ---------------- AUDIO ---------------- */
+/* Tiny synth: tones (with pitch glides) + filtered noise bursts for "hits".
+   Everything is generated live in the browser — no sound files, fully offline. */
+let AC=null, MASTER=null;
+function audio(){
+  if(!SAVE.sound) return;
+  if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)();
+    MASTER=AC.createGain(); MASTER.gain.value=0.85; MASTER.connect(AC.destination); }catch(e){return;} }
+  if(AC.state==="suspended"){ try{AC.resume();}catch(e){} }
+  return AC;
+}
+function now(){ const ac=audio(); return ac?ac.currentTime:0; }
+/* one note; glides f1->f2 if f2 given */
+function tone(f1,f2,start,dur,type,vol){
+  const ac=audio(); if(!ac) return;
+  const o=ac.createOscillator(), g=ac.createGain();
+  o.type=type||"triangle"; o.frequency.setValueAtTime(f1,start);
+  if(f2 && f2!==f1) o.frequency.exponentialRampToValueAtTime(Math.max(1,f2),start+dur);
+  g.gain.setValueAtTime(0,start);
+  g.gain.linearRampToValueAtTime(vol,start+Math.min(0.02,dur*0.3));
+  g.gain.exponentialRampToValueAtTime(0.0001,start+dur);
+  o.connect(g).connect(MASTER); o.start(start); o.stop(start+dur+0.02);
+}
+/* filtered white-noise burst — punchy impacts / slashes / booms */
+function noise(start,dur,vol,from,to){
+  const ac=audio(); if(!ac) return;
+  const n=Math.max(1,Math.floor(ac.sampleRate*dur));
+  const buf=ac.createBuffer(1,n,ac.sampleRate), d=buf.getChannelData(0);
+  for(let i=0;i<n;i++) d[i]=Math.random()*2-1;
+  const src=ac.createBufferSource(); src.buffer=buf;
+  const f=ac.createBiquadFilter(); f.type="lowpass";
+  f.frequency.setValueAtTime(from||4000,start);
+  f.frequency.exponentialRampToValueAtTime(Math.max(60,to||400),start+dur);
+  const g=ac.createGain();
+  g.gain.setValueAtTime(vol,start); g.gain.exponentialRampToValueAtTime(0.0001,start+dur);
+  src.connect(f).connect(g).connect(MASTER); src.start(start); src.stop(start+dur);
+}
+function melody(freqs,start,dur,type,gap,vol){ freqs.forEach((f,i)=>tone(f,f,start+i*(dur+(gap||0)),dur,type,vol)); }
+
+/* ---- named sound effects ---- */
+const sClick   =()=>{ const t=now(); tone(660,920,t,0.06,"square",0.07); };
+const sCorrect =()=>{ const t=now(); melody([523,659,784],t,0.11,"triangle",0,0.15); noise(t,0.07,0.05,7000,1800); };
+const sHit     =()=>{ const t=now(); noise(t,0.12,0.16,2200,140); tone(170,60,t,0.13,"sawtooth",0.12); };   // boss takes damage
+const sWrong   =()=>{ const t=now(); tone(300,90,t,0.30,"sawtooth",0.15); noise(t,0.10,0.05,1200,200); };
+const sCombo   =n=>{ const t=now(); const base=480+Math.min(n,9)*55; tone(base,base*1.5,t,0.10,"square",0.13); };
+const sSpecial =()=>{ const t=now(); tone(280,1700,t,0.34,"sawtooth",0.11); noise(t,0.30,0.07,9000,900);
+                      melody([784,1047,1319,1568],t+0.18,0.13,"square",0,0.14); };
+const sBattle  =()=>{ const t=now(); tone(180,560,t,0.42,"sawtooth",0.11); tone(360,1100,t+0.10,0.42,"square",0.07); };
+const sVictory =()=>{ const t=now(); melody([523,659,784,1047,1319,1568],t,0.15,"triangle",0.02,0.17); };
+const sBossDown=()=>{ const t=now(); noise(t,0.5,0.24,1300,55);                                            // big boom
+                      melody([392,523,659,784,1047,1319],t+0.26,0.17,"square",0,0.16); };
+const sBadge   =()=>{ const t=now(); melody([1047,1319,1568,2093],t,0.11,"triangle",0,0.13); };
+const sLowSpirit=()=>{ const t=now(); tone(440,330,t,0.18,"sine",0.12); tone(330,233,t+0.16,0.24,"sine",0.12); };
+
+/* ---------------- VISUAL FX (canvas particles + popups) ---------------- */
+const fx=$("#fx"), fxc=fx.getContext("2d");
+let parts=[], fxOn=false;
+function fxResize(){ const d=window.devicePixelRatio||1;
+  fx.width=innerWidth*d; fx.height=innerHeight*d; fx.style.width=innerWidth+"px"; fx.style.height=innerHeight+"px";
+  fxc.setTransform(d,0,0,d,0,0); }
+window.addEventListener("resize",fxResize); fxResize();
+function fxLoop(){
+  fxc.clearRect(0,0,innerWidth,innerHeight);
+  for(let i=parts.length-1;i>=0;i--){ const p=parts[i];
+    p.vy+=p.g; p.vx*=0.99; p.x+=p.vx; p.y+=p.vy; p.life--; p.rot+=p.vr;
+    const a=Math.max(0,p.life/p.max);
+    fxc.globalAlpha=a;
+    if(p.emoji){ fxc.font=p.size+"px serif"; fxc.textAlign="center"; fxc.textBaseline="middle"; fxc.fillText(p.emoji,p.x,p.y); }
+    else if(p.rect){ fxc.save(); fxc.translate(p.x,p.y); fxc.rotate(p.rot); fxc.fillStyle=p.color; fxc.fillRect(-p.size/2,-p.size/2,p.size,p.size*0.55); fxc.restore(); }
+    else { fxc.fillStyle=p.color; fxc.beginPath(); fxc.arc(p.x,p.y,Math.max(0.5,p.size*a),0,7); fxc.fill(); }
+    if(p.life<=0 || p.y>innerHeight+60) parts.splice(i,1);
+  }
+  fxc.globalAlpha=1;
+  if(parts.length) requestAnimationFrame(fxLoop); else fxOn=false;
+}
+function fxStart(){ if(!fxOn){ fxOn=true; requestAnimationFrame(fxLoop); } }
+function burst(x,y,o){ o=o||{}; const cols=o.colors||["#ffd23f","#ff3d7f","#2ec5ff"]; const n=o.count||18;
+  for(let i=0;i<n;i++){
+    const ang=(o.dir!=null)? o.dir+(Math.random()-0.5)*(o.spread||Math.PI*2) : Math.random()*Math.PI*2;
+    const sp=(o.speed||4)*(0.4+Math.random());
+    parts.push({x,y,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp-(o.up||0),
+      g:(o.g!=null?o.g:0.12), life:o.life||40, max:o.life||40,
+      size:(o.size||6)*(0.6+Math.random()*0.9),
+      color:cols[(Math.random()*cols.length)|0],
+      emoji:o.emojis?o.emojis[(Math.random()*o.emojis.length)|0]:null,
+      rect:!!o.rect, rot:Math.random()*6, vr:(Math.random()-0.5)*0.4});
+  }
+  fxStart();
+}
+function confetti(){ const cols=["#ffd23f","#ff3d7f","#2ec5ff","#37e29a","#fff"];
+  for(let i=0;i<140;i++) parts.push({x:Math.random()*innerWidth,y:-20-Math.random()*240,
+    vx:(Math.random()-0.5)*2.4, vy:1.5+Math.random()*3.5, g:0.03, life:240, max:240,
+    size:7+Math.random()*7, color:cols[i%cols.length], rect:true, rot:Math.random()*6, vr:(Math.random()-0.5)*0.5});
+  fxStart();
+}
+function center(sel){ const el=$(sel); if(!el) return {x:innerWidth/2,y:innerHeight*0.3}; const r=el.getBoundingClientRect(); return {x:r.left+r.width/2,y:r.top+r.height/2}; }
+function popText(x,y,txt,cls){ const d=document.createElement("div"); d.className="dmg "+(cls||"gold"); d.textContent=txt;
+  d.style.left=x+"px"; d.style.top=y+"px"; document.body.appendChild(d); setTimeout(()=>d.remove(),1000); }
+function flash(color){ const f=$("#flash"); f.style.background="radial-gradient(circle, "+color+", transparent 70%)";
+  f.classList.remove("go"); void f.offsetWidth; f.classList.add("go"); }
+function shockwave(){ const r=$("#ring"); r.classList.remove("go"); void r.offsetWidth; r.classList.add("go"); }
+
+/* ---------------- STATE ---------------- */
+let S=null;
+let cfg={len:10,mode:"all",sound:true};
+
+/* ---------------- SCREENS ---------------- */
+function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active")); $("#"+id).classList.add("active"); window.scrollTo(0,0); }
+
+/* ---------------- HOME ---------------- */
+function renderHome(){
+  // rank
+  let cur=RANKS[0];
+  RANKS.forEach(r=>{ if(SAVE.totalCorrect>=r.t) cur=r; });
+  $("#rankEmoji").textContent=cur.emoji;
+  $("#rankName").textContent=cur.name;
+  $("#bestPower").textContent=SAVE.bestPower.toLocaleString();
+  $("#totalCorrect").textContent=SAVE.totalCorrect;
+  const shelf=$("#rankShelf"); shelf.innerHTML="";
+  RANKS.forEach(r=>{
+    const unlocked=SAVE.totalCorrect>=r.t;
+    const d=document.createElement("div");
+    d.className="badge"+(unlocked?"":" locked");
+    d.textContent=r.emoji+" "+r.name+(unlocked?"":" 🔒");
+    shelf.appendChild(d);
+  });
+  // reflect sound setting
+  cfg.sound=SAVE.sound;
+  $("#soundSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on", (b.dataset.snd==="1")===SAVE.sound));
+}
+
+/* segmented control wiring */
+function wireSeg(sel, attr, cb){
+  $(sel).querySelectorAll("button").forEach(b=>{
+    b.addEventListener("click",()=>{
+      $(sel).querySelectorAll("button").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on"); cb(b.dataset[attr]); sClick();
+    });
+  });
+}
+wireSeg("#lenSeg","len",v=>cfg.len=+v);
+wireSeg("#modeSeg","mode",v=>cfg.mode=v);
+wireSeg("#soundSeg","snd",v=>{ cfg.sound=SAVE.sound=(v==="1"); persist(); });
+
+/* ---------------- START / RETRY ---------------- */
+$("#startBtn").addEventListener("click",()=>{
+  audio(); sClick(); // unlock audio on gesture
+  const types=TYPE_SETS[cfg.mode];
+  let verbs;
+  if(cfg.len>=60){ verbs=shuffle(VERBS); }
+  else { verbs=pick(VERBS,cfg.len); }
+  startRound(buildRound(verbs,types), false);
+});
+
+function startRound(round, isRetry){
+  const boss=BOSSES[Math.floor(Math.random()*BOSSES.length)];
+  S={round, idx:0, score:0, combo:0, bestCombo:0, correct:0, missed:[],
+     total:round.length, bossHP:100, spirit:100, boss, isRetry, answered:false, bossKO:false};
+  const ava=$("#bossAva");
+  ava.textContent=boss.ava; ava.className="boss-ava idle";
+  $("#bossName").textContent=boss.name;
+  show("battle");
+  sBattle();
+  burst(innerWidth/2, innerHeight*0.35, {count:30, speed:6, up:1, colors:["#2ec5ff","#ffd23f"], emojis:["⚔️","✨"], size:22, life:50});
+  renderQuestion();
+}
+
+/* ---------------- RENDER QUESTION ---------------- */
+function renderQuestion(){
+  const q=S.round[S.idx];
+  S.answered=false;
+  $("#progress").textContent=(S.idx+1)+" / "+S.total;
+  $("#qkind").textContent=q.kind;
+  $("#qprompt").textContent=q.prompt;
+  $("#qhint").textContent=q.hint;
+  $("#power").textContent=S.score.toLocaleString();
+  updateCombo();
+  updateBars();
+  $("#feedback").innerHTML="";
+  $("#nextBtn").style.display="none";
+
+  const box=$("#answers");
+  box.className="answers"+(q.opts.length===2?" two":"");
+  box.innerHTML="";
+  q.opts.forEach((opt,i)=>{
+    const b=document.createElement("button");
+    b.className="ans"; b.dataset.val=opt; b.dataset.i=i;
+    b.innerHTML='<span class="num">'+(i+1)+'</span>'+escapeHtml(opt);
+    b.addEventListener("click",()=>choose(b));
+    box.appendChild(b);
+  });
+}
+function escapeHtml(s){ return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+/* ---------------- ANSWER ---------------- */
+function choose(btn){
+  if(S.answered) return;
+  S.answered=true;
+  const q=S.round[S.idx];
+  const chosen=btn.dataset.val;
+  const ok = chosen===q.correct;
+  const buttons=[...document.querySelectorAll(".ans")];
+  buttons.forEach(b=>{
+    b.disabled=true;
+    if(b.dataset.val===q.correct) b.classList.add("correct");
+    else if(b===btn) b.classList.add("wrong");
+  });
+
+  const fb=$("#feedback");
+  const bossPos=center("#bossAva");
+  if(ok){
+    const prevScore=S.score;
+    S.correct++; S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo);
+    const mult=1+Math.floor(S.combo/3)*0.5;
+    const gain=Math.round(100*mult);
+    S.score+=gain;
+    S.bossHP=Math.max(0, S.bossHP - (100/Math.max(1,Math.ceil(S.total*0.75)))); // ~75% correct defeats the boss
+    S.spirit=Math.min(100, S.spirit+8);
+    sCorrect(); sHit();
+    // hit graphics
+    const ava=$("#bossAva"); ava.classList.remove("hit"); void ava.offsetWidth; ava.classList.add("hit");
+    burst(bossPos.x, bossPos.y, {count:20, speed:6, colors:["#ffd23f","#37e29a","#fff"], emojis:["💥","⚡","✨"], size:24, life:38});
+    popText(bossPos.x, bossPos.y-30, "+"+gain, "gold");
+    flash("rgba(55,226,154,.30)");
+    tickPower(prevScore, S.score);
+    fb.innerHTML='<div class="fbmsg good">'+praise()+'</div><div class="fbsmall">+'+gain+' power'+(mult>1?' (×'+mult+' combo bonus!)':'')+'</div>';
+    if(S.combo>=2 && S.combo%3!==0){ sCombo(S.combo); }
+    if(S.combo>0 && S.combo%3===0){ specialMove(); }
+    if(S.bossHP<=0.5 && !S.bossKO){ S.bossKO=true; bossDefeatFx(); }
+  }else{
+    S.combo=0;
+    S.spirit=Math.max(0, S.spirit-18);
+    S.missed.push({v:q.v, type:q.type});
+    sWrong();
+    $("#battle").classList.add("shake"); setTimeout(()=>$("#battle").classList.remove("shake"),400);
+    flash("rgba(255,85,102,.30)");
+    const spPos=center("#sp"); popText(spPos.x, spPos.y, "-18 spirit", "red");
+    burst(bossPos.x, bossPos.y, {count:10, speed:3, colors:["#ff5566","#7e2230"], size:7, life:30});
+    if(S.spirit<=0) setTimeout(sLowSpirit,250);
+    fb.innerHTML='<div class="fbmsg bad">Nicht ganz!</div><div class="fbsmall">Correct answer: <b style="color:var(--green)">'+escapeHtml(q.correct)+'</b></div>';
+  }
+  $("#power").textContent=S.score.toLocaleString();
+  updateCombo(true); updateBars();
+  const nb=$("#nextBtn");
+  nb.textContent = (S.idx+1>=S.total) ? "See results ▶" : "Weiter ▶";
+  nb.style.display="block";
+}
+
+function praise(){
+  const p=["Richtig! 💥","Super! ⚡","Volltreffer! 🎯","Stark! 🔥","Genau! ✨","Perfekt! 🌟","Mega! 🚀"];
+  return p[Math.floor(Math.random()*p.length)];
+}
+
+function updateCombo(pop){
+  const c=$("#combo");
+  if(S.combo>=2){ c.classList.remove("zero"); c.textContent="🔥 Combo ×"+S.combo;
+    if(pop){ c.classList.remove("pop"); void c.offsetWidth; c.classList.add("pop"); } }
+  else { c.classList.add("zero"); c.textContent="No combo"; }
+}
+/* animated count-up for the power-level number */
+function tickPower(from,to){
+  const el=$("#power"); el.classList.remove("tick"); void el.offsetWidth; el.classList.add("tick");
+  const start=performance.now(), dur=350;
+  (function step(t){ const k=Math.min(1,(t-start)/dur);
+    el.textContent=Math.round(from+(to-from)*k).toLocaleString();
+    if(k<1) requestAnimationFrame(step); })(start);
+}
+/* big boss-defeat moment */
+function bossDefeatFx(){
+  const ava=$("#bossAva"); const p=center("#bossAva");
+  ava.classList.remove("idle","hit"); void ava.offsetWidth; ava.classList.add("ko");
+  flash("rgba(255,210,63,.45)"); shockwave(); sBossDown();
+  burst(p.x, p.y, {count:46, speed:9, colors:["#ffd23f","#ff3d7f","#2ec5ff","#fff"], emojis:["💥","🔥","⭐","✨"], size:30, life:60, g:0.06});
+  popText(p.x, p.y-10, "K.O.! 🏆", "gold");
+}
+function updateBars(){
+  $("#bossHp").style.width=S.bossHP+"%";
+  $("#bossHpTxt").textContent=Math.round(S.bossHP)+"%";
+  $("#sp").style.width=S.spirit+"%";
+  $("#spTxt").textContent=Math.round(S.spirit)+"%";
+}
+
+function specialMove(){
+  const moves=["⚡ Special Move! ⚡","🌀 Combo Rush! 🌀","🔥 Power Surge! 🔥","💥 Critical Hit! 💥","🐉 Dragon Strike! 🐉"];
+  $("#specialTxt").textContent=moves[Math.floor(Math.random()*moves.length)];
+  const el=$("#special"); el.classList.remove("show"); void el.offsetWidth; el.classList.add("show");
+  sSpecial(); shockwave(); flash("rgba(255,210,63,.35)");
+  // sparks fly across the screen
+  burst(innerWidth/2, innerHeight/2, {count:50, speed:11, colors:["#ffd23f","#ff3d7f","#2ec5ff","#fff"], emojis:["⚡","💥","🌟","🔥"], size:30, life:55, g:0.05});
+  const bp=center("#bossAva"); burst(bp.x, bp.y, {count:22, speed:5, colors:["#ffd23f","#fff"], size:9, life:40});
+  setTimeout(()=>el.classList.remove("show"),900);
+}
+
+/* ---------------- NEXT ---------------- */
+$("#nextBtn").addEventListener("click",nextQuestion);
+function nextQuestion(){
+  if(!S.answered) return;
+  sClick();
+  S.idx++;
+  if(S.idx>=S.total){ endRound(); }
+  else { renderQuestion(); }
+}
+
+/* ---------------- RESULTS ---------------- */
+function endRound(){
+  const pct=Math.round(100*S.correct/S.total);
+  const flawless = S.correct===S.total;
+  const bossDown = S.bossKO;
+
+  // persist progress
+  SAVE.totalCorrect += S.correct;
+  if(S.score>SAVE.bestPower) SAVE.bestPower=S.score;
+  persist();
+
+  $("#resTag").textContent = S.isRetry ? "Rematch complete" : "Mission complete";
+  $("#resTitle").textContent = bossDown ? "Boss Defeated! 🏆" : (pct>=60 ? "Victory! ⚔️" : "Keep Training! 💪");
+  $("#perfectBanner").style.display = flawless ? "block" : "none";
+
+  $("#rScore").textContent=S.score.toLocaleString();
+  $("#rPct").textContent=pct+"%";
+  $("#rCombo").textContent="×"+S.bestCombo;
+  $("#rRight").textContent=S.correct+"/"+S.total;
+
+  // achievements
+  const earned=$("#earned"); earned.innerHTML="";
+  const ach=[];
+  if(flawless) ach.push("⭐ Flawless Victory");
+  if(bossDown) ach.push("🏆 Boss Slayer");
+  if(S.bestCombo>=5) ach.push("🔥 Combo King (×"+S.bestCombo+")");
+  if(S.bestCombo>=10) ach.push("🐉 Unstoppable!");
+  if(pct>=80 && !flawless) ach.push("💪 Great Run");
+  const realAch = ach.length>0;
+  if(ach.length===0) ach.push("🌱 Good effort — try again!");
+  ach.forEach(a=>{ const d=document.createElement("div"); d.className="badge"; d.textContent=a; earned.appendChild(d); });
+
+  // review missed
+  const rp=$("#reviewPanel"), rev=$("#review"); rev.innerHTML="";
+  // unique verbs missed
+  const seen=new Set(); const uniq=[];
+  S.missed.forEach(m=>{ if(!seen.has(m.v.n)){ seen.add(m.v.n); uniq.push(m.v); } });
+  if(uniq.length===0){
+    rp.querySelector(".label").textContent="📖 Nothing to review";
+    rev.innerHTML='<div class="item" style="border-left-color:var(--green)"><div class="w">Perfect! You got every verb right. 🎉</div></div>';
+    $("#retryBtn").style.display="none";
+  }else{
+    rp.querySelector(".label").textContent="📖 Verbs to review (study these!)";
+    uniq.forEach(v=>{
+      const d=document.createElement("div"); d.className="item";
+      d.innerHTML='<div class="w">'+escapeHtml(v.inf)+' <em>— '+escapeHtml(v.en)+'</em></div>'+
+        '<div class="f">er '+escapeHtml(v.present)+' · '+escapeHtml(v.praet)+' · <span class="aux">'+escapeHtml(v.perfect)+'</span></div>';
+      rev.appendChild(d);
+    });
+    $("#retryBtn").style.display="block";
+  }
+
+  show("results");
+  // celebratory finish
+  if(pct>=60 || bossDown){ confetti(); sVictory(); if(realAch) setTimeout(sBadge,650); }
+  else { sLowSpirit(); }
+  renderHome(); // refresh trainer card behind the scenes
+}
+
+/* retry only missed */
+$("#retryBtn").addEventListener("click",()=>{
+  const seen=new Set(); const items=[];
+  S.missed.forEach(m=>{ const k=m.v.n+"-"+m.type; if(!seen.has(k)){ seen.add(k); items.push(m);} });
+  const round=items.map(m=>makeQuestion(m.v,m.type));
+  sClick(); startRound(round, true);
+});
+$("#againBtn").addEventListener("click",()=>{ sClick(); show("home"); renderHome(); });
+$("#homeBtn").addEventListener("click",()=>{ sClick(); show("home"); renderHome(); });
+
+/* ---------------- KEYBOARD ---------------- */
+document.addEventListener("keydown",e=>{
+  if($("#battle").classList.contains("active")){
+    if(!S.answered && /^[1-6]$/.test(e.key)){
+      const b=document.querySelector('.ans[data-i="'+(+e.key-1)+'"]'); if(b) b.click();
+    }else if(S.answered && (e.key==="Enter"||e.key===" ")){
+      e.preventDefault(); nextQuestion();
+    }
+  }
+});
+
+/* ---------------- iOS AUDIO UNLOCK ---------------- */
+/* Safari/iPad only allow audio to start from a real touch. Resume on first tap,
+   and again whenever the app comes back from the background. */
+function unlockAudio(){ const ac=audio(); if(ac && ac.state==="suspended"){ try{ac.resume();}catch(e){} } }
+["touchend","pointerdown","mousedown"].forEach(ev=>
+  document.addEventListener(ev, unlockAudio, {once:false, passive:true}));
+document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) unlockAudio(); });
+
+/* ---------------- GO ---------------- */
+renderHome();
+</script>
+</body>
+</html>
