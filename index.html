@@ -223,6 +223,53 @@
   h1{background-size:200% auto; animation:shimmer 5s linear infinite}
   @keyframes shimmer{to{background-position:200% center}}
   @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important}}
+
+  /* options wrapper (stacks in portrait) */
+  .opts .panel{margin-bottom:16px}
+
+  /* ===== iPad / tablet LANDSCAPE: use the wide space so nothing scrolls ===== */
+  @media (orientation:landscape) and (min-width:680px){
+    #app{max-width:1060px;
+      padding-top:calc(10px + env(safe-area-inset-top));
+      padding-bottom:calc(12px + env(safe-area-inset-bottom));}
+
+    /* --- HOME: title on top, the 3 settings in a row, no footer --- */
+    #home .tag{font-size:12px}
+    #home h1{font-size:clamp(28px,6vw,44px); margin:.05em 0}
+    #home .sub{margin:.25em 0 .7em; font-size:14px}
+    .opts{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:12px}
+    .opts .panel{margin-bottom:0}
+    #home .panel{padding:12px}
+    #home .footer{display:none}
+    #startBtn{padding:14px; font-size:20px}
+
+    /* --- BATTLE: boss + question on the left, answers on the right --- */
+    #battle.active{
+      display:grid; align-content:start; gap:8px 22px;
+      grid-template-columns:1fr 1fr;
+      grid-template-areas:
+        "hud   answers"
+        "score answers"
+        "qcard answers"
+        "feed  answers"
+        "next  next";
+    }
+    #battle .hud{grid-area:hud; margin-bottom:0}
+    #battle .scoreline{grid-area:score; margin-bottom:0}
+    #battle .qcard{grid-area:qcard; margin-bottom:0; padding:14px 16px}
+    #battle #answers{grid-area:answers; align-self:center}
+    #battle #feedback{grid-area:feed; min-height:0; margin-top:2px}
+    #battle #nextBtn{grid-area:next; margin-top:4px}
+    .boss-ava{font-size:34px; width:54px; height:54px; flex-basis:54px}
+    .qkind{margin-bottom:6px}
+    .qprompt{font-size:clamp(22px,3.6vw,34px)}
+    .qcard .qhint{font-size:14px; margin-top:4px}
+    .ans{padding:13px 12px 13px 42px; font-size:17px}
+
+    /* --- RESULTS: keep the summary compact --- */
+    #results.active h1{font-size:clamp(26px,5vw,38px); margin:.05em 0}
+    #results.active .stats{grid-template-columns:repeat(4,1fr); margin:10px 0}
+  }
 </style>
 </head>
 <body>
@@ -234,29 +281,29 @@
     <h1>Verb Quest</h1>
     <p class="sub">Beat the bosses by mastering your 60 irregular verbs. Build combos, power up, and become a Verb Master before the test! 🔥</p>
 
-    <div class="panel">
-      <p class="label">Mission length</p>
-      <div class="seg" id="lenSeg">
-        <button data-len="10" class="on">10 ⚡</button>
-        <button data-len="20">20 ⚡⚡</button>
-        <button data-len="60">All 60 🐉</button>
+    <div class="opts">
+      <div class="panel">
+        <p class="label">Mission length</p>
+        <div class="seg" id="lenSeg">
+          <button data-len="10" class="on">10 ⚡</button>
+          <button data-len="20">20 ⚡⚡</button>
+          <button data-len="60">All 60 🐉</button>
+        </div>
       </div>
-    </div>
 
-    <div class="panel">
-      <p class="label">What to train</p>
-      <div class="seg" id="modeSeg">
-        <button data-mode="all" class="on">Everything</button>
-        <button data-mode="forms">Verb forms</button>
-        <button data-mode="aux">sein / haben</button>
-        <button data-mode="trans">Translation</button>
+      <div class="panel">
+        <p class="label">What to train</p>
+        <div class="seg" id="modeSeg">
+          <button data-mode="all" class="on">Everything</button>
+          <button data-mode="forms">Verb forms</button>
+          <button data-mode="aux">sein / haben</button>
+          <button data-mode="trans">Translation</button>
+        </div>
       </div>
-    </div>
 
-    <div class="panel">
-      <div class="sound-toggle">
-        <span class="label" style="margin:0">Sound effects</span>
-        <div class="seg" style="flex:0 0 auto" id="soundSeg">
+      <div class="panel">
+        <p class="label">Sound effects</p>
+        <div class="seg" id="soundSeg">
           <button data-snd="1" class="on">🔊 On</button>
           <button data-snd="0">🔇 Off</button>
         </div>
