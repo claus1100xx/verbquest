@@ -11,7 +11,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0b1026">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230b1026'/><path d='M56 8 L28 56 H46 L40 92 L74 40 H54 Z' fill='%23ffd23f'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230b1026'/><path d='M50 6 L64 36 L94 50 L64 64 L50 94 L36 64 L6 50 L36 36 Z' fill='%23dfe6f5'/><circle cx='50' cy='50' r='8' fill='%230b1026'/></svg>">
 <style>
   :root{
     --bg:#0b1026; --bg2:#141b3a;
@@ -224,6 +224,33 @@
   @keyframes shimmer{to{background-position:200% center}}
   @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important}}
 
+  /* ===== Naruto / ninja graphics ===== */
+  /* ninja headband (forehead protector) banner on the home screen */
+  .headband{display:block; width:min(360px,86%); margin:6px auto 2px; filter:drop-shadow(0 6px 14px rgba(0,0,0,.45))}
+  .headband svg{display:block; width:100%; height:auto}
+  /* slowly spinning shuriken decorations behind the UI */
+  .shuriken-decor{position:fixed; z-index:0; pointer-events:none; opacity:.13; width:130px; height:130px}
+  .shuriken-decor svg{width:100%; height:100%; animation:spin 9s linear infinite}
+  .shuriken-decor.s1{top:-26px; right:-26px}
+  .shuriken-decor.s2{bottom:-30px; left:-30px; width:170px; height:170px}
+  .shuriken-decor.s2 svg{animation-duration:14s; animation-direction:reverse}
+
+  /* Rasengan chakra orb shown during a Special Move */
+  .rasengan{position:absolute; left:50%; top:50%; width:46vmin; height:46vmin; max-width:300px; max-height:300px;
+    border-radius:50%; transform:translate(-50%,-50%) scale(.2); opacity:0; overflow:hidden; z-index:1;
+    background:radial-gradient(circle at 38% 34%, #eaffff, #7fd0ff 26%, #2ec5ff 48%, #1f7fe0 70%, #0c3f86 100%);
+    box-shadow:0 0 60px #2ec5ff, 0 0 130px rgba(46,197,255,.55), inset 0 0 40px rgba(190,240,255,.8)}
+  .rasengan::before{content:""; position:absolute; inset:-25%;
+    background:conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,.85) 40deg, transparent 110deg, rgba(150,220,255,.7) 200deg, transparent 300deg, transparent 360deg);
+    animation:spin .5s linear infinite}
+  .rasengan::after{content:""; position:absolute; inset:20%; border-radius:50%;
+    background:radial-gradient(circle, rgba(255,255,255,.9), transparent 60%)}
+  .special.show .rasengan{animation:rasenpop .9s ease}
+  @keyframes rasenpop{0%{opacity:0; transform:translate(-50%,-50%) scale(.2)}
+    25%{opacity:1; transform:translate(-50%,-50%) scale(1.05)} 70%{opacity:1}
+    100%{opacity:0; transform:translate(-50%,-50%) scale(1.12)}}
+  .special b{z-index:2}
+
   /* options wrapper (stacks in portrait) */
   .opts .panel{margin-bottom:16px}
 
@@ -241,6 +268,7 @@
     .opts .panel{margin-bottom:0}
     #home .panel{padding:12px}
     #home .footer{display:none}
+    #home .headband{width:min(280px,52%); margin:2px auto 0}
     #startBtn{padding:14px; font-size:20px}
 
     /* --- BATTLE: boss + question on the left, answers on the right --- */
@@ -277,7 +305,32 @@
 
   <!-- ================= HOME ================= -->
   <section id="home" class="screen active">
-    <div class="tag">⚔️ German Training Arc</div>
+    <div class="headband" aria-hidden="true">
+      <svg viewBox="0 0 340 92" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="cloth" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#2a5599"/><stop offset="1" stop-color="#14305a"/>
+          </linearGradient>
+          <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#f2f5fc"/><stop offset=".5" stop-color="#c7d0e4"/><stop offset="1" stop-color="#94a0bf"/>
+          </linearGradient>
+        </defs>
+        <!-- dangling cloth ties -->
+        <path d="M298 44 L340 56 L340 74 L300 60 Z" fill="#14305a"/>
+        <path d="M300 50 L336 82 L318 90 L296 62 Z" fill="#1d3f72"/>
+        <!-- cloth band -->
+        <rect x="0" y="28" width="332" height="36" rx="7" fill="url(#cloth)"/>
+        <rect x="0" y="30" width="332" height="7" rx="3" fill="#3a67ab" opacity=".55"/>
+        <!-- metal plate -->
+        <rect x="116" y="14" width="108" height="64" rx="10" fill="url(#metal)" stroke="#6c7798" stroke-width="2"/>
+        <circle cx="126" cy="24" r="3" fill="#8893ad"/><circle cx="214" cy="24" r="3" fill="#8893ad"/>
+        <circle cx="126" cy="68" r="3" fill="#8893ad"/><circle cx="214" cy="68" r="3" fill="#8893ad"/>
+        <!-- leaf-swirl symbol -->
+        <path transform="translate(142.5,18.5) scale(0.55)" fill="none" stroke="#15294f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"
+          d="M 53.0 50.0 L 53.4 50.9 L 53.5 51.9 L 53.2 53.0 L 52.6 54.1 L 51.7 55.1 L 50.4 55.8 L 48.9 56.2 L 47.2 56.2 L 45.4 55.7 L 43.8 54.6 L 42.4 53.1 L 41.4 51.2 L 40.9 49.0 L 41.0 46.6 L 41.7 44.2 L 43.1 42.0 L 45.1 40.1 L 47.6 38.7 L 50.5 38.0 L 53.5 38.0 L 56.6 38.9 L 59.5 40.5 L 62.0 42.9 L 63.8 46.0 L 64.9 49.5 L 65.0 53.3 L 64.1 57.1 L 62.3 60.7 L 59.5 63.8 L 56.0 66.2 L 51.8 67.6 L 47.4 68.0 L 42.8 67.2 L 38.5 65.3 L 34.7 62.3 L 31.7 58.3 L 29.7 53.6 L 29.0 48.4 L 29.6 43.1 L 31.5 38.0 L 34.8 33.5 L 39.1 29.8 L 44.3 27.3 L 50.1 26.1 L 56.1 26.4 L 62.0 28.2 L 67.3 31.5 L 71.8 36.2 L 75.0 41.8 L 76.7 48.2 L 76.8 55.0 L 75.1 61.6 L 71.8 67.8 L 67.0 73.0 L 61.0 77.0"/>
+      </svg>
+    </div>
+    <div class="tag">🍃 Hidden Leaf · German Training Arc</div>
     <h1>Verb Quest</h1>
     <p class="sub">Beat the bosses by mastering your 60 irregular verbs. Build combos, power up, and become a Verb Master before the test! 🔥</p>
 
@@ -389,8 +442,11 @@
 
 </div>
 
-<div class="special" id="special"><b id="specialTxt">⚡ Special Move! ⚡</b></div>
+<div class="special" id="special"><div class="rasengan" id="rasengan"></div><b id="specialTxt">⚡ Special Move! ⚡</b></div>
 <div class="ring" id="ring"></div>
+<!-- ambient spinning shuriken -->
+<div class="shuriken-decor s1" aria-hidden="true"><svg viewBox="-50 -50 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M0 -46 L13 -13 L46 0 L13 13 L0 46 L-13 13 L-46 0 L-13 -13 Z" fill="#aeb8d0"/><circle r="7" fill="#0b1026"/><circle r="7" fill="none" stroke="#8893ad" stroke-width="2"/></svg></div>
+<div class="shuriken-decor s2" aria-hidden="true"><svg viewBox="-50 -50 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M0 -46 L13 -13 L46 0 L13 13 L0 46 L-13 13 L-46 0 L-13 -13 Z" fill="#aeb8d0"/><circle r="7" fill="#0b1026"/><circle r="7" fill="none" stroke="#8893ad" stroke-width="2"/></svg></div>
 <div id="flash"></div>
 <canvas id="fx"></canvas>
 
@@ -400,11 +456,13 @@ const VERBS = [{"n":1,"inf":"anfangen","present":"fängt an","perfect":"hat ange
 
 /* ---------------- BOSSES ---------------- */
 const BOSSES = [
+  {name:"Nine-Tails Fox", ava:"🦊"},
+  {name:"Rogue Shinobi", ava:"🥷"},
+  {name:"Masked Akatsuki", ava:"👺"},
+  {name:"Sand Jinchūriki", ava:"🏜️"},
+  {name:"Sound Ninja", ava:"🎐"},
   {name:"Captain Kuro-Beard", ava:"🏴‍☠️"},
   {name:"Cursed Spirit", ava:"👹"},
-  {name:"Shadow Ninja", ava:"🥷"},
-  {name:"Wildfire Striker", ava:"⚽"},
-  {name:"The Goalkeeper Wall", ava:"🧤"},
   {name:"Sorcerer of Six Eyes", ava:"👁️"},
   {name:"Dragon Sensei", ava:"🐉"}
 ];
@@ -541,7 +599,13 @@ function fxLoop(){
     p.vy+=p.g; p.vx*=0.99; p.x+=p.vx; p.y+=p.vy; p.life--; p.rot+=p.vr;
     const a=Math.max(0,p.life/p.max);
     fxc.globalAlpha=a;
-    if(p.emoji){ fxc.font=p.size+"px serif"; fxc.textAlign="center"; fxc.textBaseline="middle"; fxc.fillText(p.emoji,p.x,p.y); }
+    if(p.shuriken){ fxc.save(); fxc.translate(p.x,p.y); fxc.rotate(p.rot); const s=p.size;
+      fxc.fillStyle=p.color; fxc.beginPath();
+      fxc.moveTo(0,-s); fxc.lineTo(s*0.28,-s*0.28); fxc.lineTo(s,0); fxc.lineTo(s*0.28,s*0.28);
+      fxc.lineTo(0,s); fxc.lineTo(-s*0.28,s*0.28); fxc.lineTo(-s,0); fxc.lineTo(-s*0.28,-s*0.28);
+      fxc.closePath(); fxc.fill();
+      fxc.fillStyle="#0b1026"; fxc.beginPath(); fxc.arc(0,0,s*0.18,0,7); fxc.fill(); fxc.restore(); }
+    else if(p.emoji){ fxc.font=p.size+"px serif"; fxc.textAlign="center"; fxc.textBaseline="middle"; fxc.fillText(p.emoji,p.x,p.y); }
     else if(p.rect){ fxc.save(); fxc.translate(p.x,p.y); fxc.rotate(p.rot); fxc.fillStyle=p.color; fxc.fillRect(-p.size/2,-p.size/2,p.size,p.size*0.55); fxc.restore(); }
     else { fxc.fillStyle=p.color; fxc.beginPath(); fxc.arc(p.x,p.y,Math.max(0.5,p.size*a),0,7); fxc.fill(); }
     if(p.life<=0 || p.y>innerHeight+60) parts.splice(i,1);
@@ -559,7 +623,8 @@ function burst(x,y,o){ o=o||{}; const cols=o.colors||["#ffd23f","#ff3d7f","#2ec5
       size:(o.size||6)*(0.6+Math.random()*0.9),
       color:cols[(Math.random()*cols.length)|0],
       emoji:o.emojis?o.emojis[(Math.random()*o.emojis.length)|0]:null,
-      rect:!!o.rect, rot:Math.random()*6, vr:(Math.random()-0.5)*0.4});
+      rect:!!o.rect, shuriken:!!o.shuriken,
+      rot:Math.random()*6, vr:(Math.random()-0.5)*(o.shuriken?0.9:0.4)});
   }
   fxStart();
 }
@@ -695,7 +760,8 @@ function choose(btn){
     sCorrect(); sHit();
     // hit graphics
     const ava=$("#bossAva"); ava.classList.remove("hit"); void ava.offsetWidth; ava.classList.add("hit");
-    burst(bossPos.x, bossPos.y, {count:20, speed:6, colors:["#ffd23f","#37e29a","#fff"], emojis:["💥","⚡","✨"], size:24, life:38});
+    burst(bossPos.x, bossPos.y, {count:18, speed:6, colors:["#ffd23f","#37e29a","#fff"], emojis:["💥","⚡","✨"], size:24, life:38});
+    burst(bossPos.x, bossPos.y, {count:7, speed:8, shuriken:true, colors:["#cfd6e6","#aab4cc"], size:13, life:32}); // thrown shuriken
     popText(bossPos.x, bossPos.y-30, "+"+gain, "gold");
     flash("rgba(55,226,154,.30)");
     tickPower(prevScore, S.score);
@@ -746,7 +812,8 @@ function bossDefeatFx(){
   const ava=$("#bossAva"); const p=center("#bossAva");
   ava.classList.remove("idle","hit"); void ava.offsetWidth; ava.classList.add("ko");
   flash("rgba(255,210,63,.45)"); shockwave(); sBossDown();
-  burst(p.x, p.y, {count:46, speed:9, colors:["#ffd23f","#ff3d7f","#2ec5ff","#fff"], emojis:["💥","🔥","⭐","✨"], size:30, life:60, g:0.06});
+  burst(p.x, p.y, {count:42, speed:9, colors:["#ffd23f","#ff3d7f","#2ec5ff","#fff"], emojis:["💥","🔥","⭐","✨"], size:30, life:60, g:0.06});
+  burst(p.x, p.y, {count:12, speed:11, shuriken:true, colors:["#dfe6f5","#aab4cc"], size:16, life:55, g:0.05});
   popText(p.x, p.y-10, "K.O.! 🏆", "gold");
 }
 function updateBars(){
@@ -757,13 +824,14 @@ function updateBars(){
 }
 
 function specialMove(){
-  const moves=["⚡ Special Move! ⚡","🌀 Combo Rush! 🌀","🔥 Power Surge! 🔥","💥 Critical Hit! 💥","🐉 Dragon Strike! 🐉"];
+  const moves=["🌀 Rasengan! 🌀","🥷 Shadow Clone Jutsu! 🥷","🔥 Fireball Jutsu! 🔥","⚡ Chidori! ⚡","💥 Believe it! 💥","🍃 Leaf Hurricane! 🍃"];
   $("#specialTxt").textContent=moves[Math.floor(Math.random()*moves.length)];
   const el=$("#special"); el.classList.remove("show"); void el.offsetWidth; el.classList.add("show");
   sSpecial(); shockwave(); flash("rgba(255,210,63,.35)");
-  // sparks fly across the screen
-  burst(innerWidth/2, innerHeight/2, {count:50, speed:11, colors:["#ffd23f","#ff3d7f","#2ec5ff","#fff"], emojis:["⚡","💥","🌟","🔥"], size:30, life:55, g:0.05});
-  const bp=center("#bossAva"); burst(bp.x, bp.y, {count:22, speed:5, colors:["#ffd23f","#fff"], size:9, life:40});
+  // chakra sparks + a storm of shuriken fly across the screen
+  burst(innerWidth/2, innerHeight/2, {count:46, speed:11, colors:["#2ec5ff","#7fd0ff","#ff8a1e","#fff"], emojis:["⚡","💥","🌀","🍃"], size:30, life:55, g:0.05});
+  burst(innerWidth/2, innerHeight/2, {count:16, speed:14, shuriken:true, colors:["#dfe6f5","#aab4cc"], size:18, life:60, g:0.04});
+  const bp=center("#bossAva"); burst(bp.x, bp.y, {count:22, speed:5, colors:["#2ec5ff","#fff"], size:9, life:40});
   setTimeout(()=>el.classList.remove("show"),900);
 }
 
