@@ -254,6 +254,62 @@
   /* options wrapper (stacks in portrait) */
   .opts .panel{margin-bottom:16px}
 
+  /* ===== hub menu + stats ===== */
+  .hubstat{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:2px 0 14px}
+  .hubstat .chip{background:#0e1430; border:2px solid var(--line); border-radius:999px; padding:6px 12px; font-weight:bold; font-size:14px}
+  .hubstat .chip b{color:var(--gold)}
+  .menu{display:flex; flex-direction:column; gap:12px; margin-bottom:16px}
+  .menu2{display:flex; gap:12px}
+  .menu2 .btn{flex:1}
+  .soundrow{display:flex; align-items:center; justify-content:space-between}
+
+  /* ===== power-up bar (battle) ===== */
+  .powerups{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px}
+  .pu{display:flex; align-items:center; gap:6px; background:#0e1430; border:2px solid var(--line);
+    border-radius:12px; padding:8px 11px; font-weight:bold; font-size:15px; cursor:pointer; transition:.12s; color:var(--ink)}
+  .pu:hover:not(:disabled){border-color:var(--gold); transform:translateY(-2px)}
+  .pu:disabled{opacity:.35; cursor:default}
+  .pu .ct{background:var(--card2); border-radius:8px; padding:0 7px; font-size:13px; color:var(--gold)}
+  .pu.used{animation:goodpulse .4s}
+
+  /* ===== results: stage stars + coins ===== */
+  .stagestars{text-align:center; font-size:38px; letter-spacing:6px; margin:.1em 0}
+  .coinline{text-align:center; font-weight:bold; color:var(--gold); font-size:19px; margin:2px 0 12px; font-style:italic}
+
+  /* ===== adventure map ===== */
+  .stagecard{display:flex; align-items:center; gap:14px; background:linear-gradient(180deg,var(--card),var(--card2));
+    border:2px solid var(--line); border-radius:16px; padding:14px; margin-bottom:10px; box-shadow:var(--shadow); cursor:pointer; transition:.12s; text-align:left}
+  .stagecard:hover:not(.locked){border-color:var(--blue); transform:translateY(-2px)}
+  .stagecard.locked{opacity:.5; cursor:default; filter:grayscale(.6)}
+  .stagecard.cleared{border-color:var(--gold)}
+  .stagecard .sava{font-size:32px; width:56px; height:56px; flex:0 0 56px; display:grid; place-items:center;
+    background:radial-gradient(circle at 40% 30%, #2a3566, #141b3a); border-radius:14px; border:2px solid var(--line)}
+  .stagecard .sname{font-size:18px; font-weight:bold; font-style:italic}
+  .stagecard .smeta{color:var(--muted); font-size:13px; font-weight:bold; margin-top:2px}
+  .stagecard .sstars{margin-left:auto; font-size:17px; white-space:nowrap}
+
+  /* ===== verbdex ===== */
+  .dexgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px}
+  .dexcard{background:#0e1430; border:2px solid var(--line); border-radius:12px; padding:10px 12px; cursor:pointer; transition:.12s; text-align:left}
+  .dexcard:hover{border-color:var(--blue)}
+  .dexcard.m1{border-left:5px solid #cd7f32} .dexcard.m3{border-left:5px solid #c0c8d8} .dexcard.m5{border-left:5px solid var(--gold)}
+  .dexcard .dh{display:flex; align-items:center; gap:8px; font-weight:bold; font-size:17px}
+  .dexcard .dh .mdl{margin-left:auto; font-size:18px}
+  .dexcard .den{color:var(--muted); font-size:13px}
+  .dexcard .forms{display:none; margin-top:8px; color:var(--blue); font-size:14px; font-weight:bold; line-height:1.5}
+  .dexcard.open .forms{display:block}
+  .dexcard .forms .aux{color:var(--gold)}
+
+  /* ===== shop ===== */
+  .shopitem{display:flex; align-items:center; gap:14px; background:linear-gradient(180deg,var(--card),var(--card2));
+    border:2px solid var(--line); border-radius:16px; padding:14px; margin-bottom:10px; box-shadow:var(--shadow)}
+  .shopitem .ico{font-size:32px; width:50px; text-align:center; flex:0 0 50px}
+  .shopitem .info{flex:1; min-width:0}
+  .shopitem .iname{font-size:17px; font-weight:bold}
+  .shopitem .idesc{color:var(--muted); font-size:13px; margin-top:2px}
+  .shopitem .own{color:var(--gold); font-size:12px; font-weight:bold; margin-top:3px}
+  .shopitem .buy{flex:0 0 auto; padding:12px 14px; font-size:14px; width:auto}
+
   /* ===== iPad / tablet LANDSCAPE: use the wide space so nothing scrolls ===== */
   @media (orientation:landscape) and (min-width:680px){
     #app{max-width:1060px;
@@ -278,12 +334,14 @@
       grid-template-areas:
         "hud   answers"
         "score answers"
+        "tools answers"
         "qcard answers"
         "feed  answers"
         "next  next";
     }
     #battle .hud{grid-area:hud; margin-bottom:0}
     #battle .scoreline{grid-area:score; margin-bottom:0}
+    #battle .powerups{grid-area:tools; margin-bottom:0}
     #battle .qcard{grid-area:qcard; margin-bottom:0; padding:14px 16px}
     #battle #answers{grid-area:answers; align-self:center}
     #battle #feedback{grid-area:feed; min-height:0; margin-top:2px}
@@ -332,52 +390,30 @@
     </div>
     <div class="tag">🍃 Hidden Leaf · German Training Arc</div>
     <h1>Verb Quest</h1>
-    <p class="sub">Beat the bosses by mastering your 60 irregular verbs. Build combos, power up, and become a Verb Master before the test! 🔥</p>
 
-    <div class="opts">
-      <div class="panel">
-        <p class="label">Mission length</p>
-        <div class="seg" id="lenSeg">
-          <button data-len="10" class="on">10 ⚡</button>
-          <button data-len="20">20 ⚡⚡</button>
-          <button data-len="60">All 60 🐉</button>
-        </div>
-      </div>
+    <div class="hubstat" id="hubStat"></div>
 
-      <div class="panel">
-        <p class="label">What to train</p>
-        <div class="seg" id="modeSeg">
-          <button data-mode="all" class="on">Everything</button>
-          <button data-mode="forms">Verb forms</button>
-          <button data-mode="aux">sein / haben</button>
-          <button data-mode="trans">Translation</button>
-        </div>
-      </div>
-
-      <div class="panel">
-        <p class="label">Sound effects</p>
-        <div class="seg" id="soundSeg">
-          <button data-snd="1" class="on">🔊 On</button>
-          <button data-snd="0">🔇 Off</button>
-        </div>
+    <div class="menu">
+      <button class="btn" id="goAdventure">🗺️ Adventure Mode</button>
+      <button class="btn alt" id="goQuick">⚔️ Quick Battle</button>
+      <div class="menu2">
+        <button class="btn ghost small" id="goVerbdex">📒 Verbdex</button>
+        <button class="btn ghost small" id="goShop">🛒 Shop</button>
       </div>
     </div>
 
-    <button class="btn" id="startBtn">▶ Start Training</button>
-
-    <div class="panel" style="margin-top:16px">
-      <p class="label">Your trainer card</p>
-      <div class="row">
-        <div class="boss-ava" id="rankEmoji">🥚</div>
-        <div class="grow">
-          <div style="font-size:20px; font-weight:bold; font-style:italic" id="rankName">Rookie</div>
-          <div class="power" style="margin-top:2px">Best power level <b style="display:inline; font-size:18px" id="bestPower">0</b> · <span id="totalCorrect">0</span> verbs mastered</div>
-        </div>
-      </div>
-      <p class="label" style="margin-top:14px">Ranks unlocked</p>
+    <div class="panel">
+      <p class="label">Ranks unlocked</p>
       <div class="badges" id="rankShelf"></div>
     </div>
-    <div class="footer">Tip: tap an answer, or press <b>1–4</b> on the keyboard. Press <b>Enter</b> to continue.<br>Made with ❤️ for German practice.</div>
+
+    <div class="panel soundrow">
+      <span class="label" style="margin:0">Sound effects</span>
+      <div class="seg" id="soundSeg" style="flex:0 0 auto">
+        <button data-snd="1" class="on">🔊 On</button>
+        <button data-snd="0">🔇 Off</button>
+      </div>
+    </div>
   </section>
 
   <!-- ================= BATTLE ================= -->
@@ -397,6 +433,8 @@
       <div class="combo zero" id="combo">No combo</div>
     </div>
 
+    <div class="powerups" id="powerups"></div>
+
     <div class="qcard">
       <div class="qprogress" id="progress">1 / 10</div>
       <div class="qkind" id="qkind">Präteritum</div>
@@ -414,6 +452,7 @@
   <section id="results" class="screen">
     <div class="tag" id="resTag">Round complete</div>
     <h1 class="big" id="resTitle">Victory!</h1>
+    <div id="stageStars" class="stagestars" style="display:none"></div>
     <div id="perfectBanner" class="perfectbanner" style="display:none">⭐ FLAWLESS VICTORY — every answer correct! ⭐</div>
 
     <div class="stats">
@@ -422,6 +461,7 @@
       <div class="stat pink"><b id="rCombo">0</b><span>Best combo</span></div>
       <div class="stat blue"><b id="rRight">0/0</b><span>Verbs hit</span></div>
     </div>
+    <div class="coinline" id="coinLine">🪙 +0 coins</div>
 
     <div class="panel" id="earnedPanel">
       <p class="label">🏅 Achievements this round</p>
@@ -433,11 +473,71 @@
       <div class="review" id="review"></div>
     </div>
 
+    <button class="btn" id="nextStageBtn" style="display:none">➡️ Next Stage</button>
+    <div style="height:12px"></div>
     <button class="btn" id="retryBtn" style="display:none">🔁 Retry the ones I missed</button>
     <div style="height:12px"></div>
     <button class="btn alt" id="againBtn">⚔️ New mission</button>
     <div style="height:12px"></div>
+    <button class="btn ghost small" id="mapBtn" style="display:none">🗺️ Back to map</button>
+    <div style="height:12px"></div>
     <button class="btn ghost small" id="homeBtn">🏠 Home</button>
+  </section>
+
+  <!-- ================= QUICK BATTLE SETUP ================= -->
+  <section id="quick" class="screen">
+    <div class="tag">⚔️ Quick Battle</div>
+    <h1 class="big">Set up</h1>
+    <div class="panel">
+      <p class="label">Mission length</p>
+      <div class="seg" id="lenSeg">
+        <button data-len="10" class="on">10 ⚡</button>
+        <button data-len="20">20 ⚡⚡</button>
+        <button data-len="60">All 60 🐉</button>
+      </div>
+    </div>
+    <div class="panel">
+      <p class="label">What to train</p>
+      <div class="seg" id="modeSeg">
+        <button data-mode="all" class="on">Everything</button>
+        <button data-mode="forms">Verb forms</button>
+        <button data-mode="aux">sein / haben</button>
+        <button data-mode="trans">Translation</button>
+      </div>
+    </div>
+    <button class="btn" id="startBtn">▶ Start Battle</button>
+    <div style="height:12px"></div>
+    <button class="btn ghost small" data-home>🏠 Back</button>
+  </section>
+
+  <!-- ================= ADVENTURE MAP ================= -->
+  <section id="map" class="screen">
+    <div class="tag">🗺️ Adventure Mode</div>
+    <h1 class="big">Training Arc</h1>
+    <p class="sub" id="mapSub">Clear each stage to unlock the next. Earn ⭐ for high scores!</p>
+    <div id="mapList"></div>
+    <div style="height:12px"></div>
+    <button class="btn ghost small" data-home>🏠 Back</button>
+  </section>
+
+  <!-- ================= VERBDEX ================= -->
+  <section id="verbdex" class="screen">
+    <div class="tag">📒 Verbdex</div>
+    <h1 class="big">Verb Collection</h1>
+    <p class="sub" id="dexSub">Master verbs to earn medals. Tap a card to see all its forms.</p>
+    <div id="dexGrid" class="dexgrid"></div>
+    <div style="height:12px"></div>
+    <button class="btn ghost small" data-home>🏠 Back</button>
+  </section>
+
+  <!-- ================= SHOP ================= -->
+  <section id="shop" class="screen">
+    <div class="tag">🛒 Ramen Shop</div>
+    <h1 class="big">Power-Ups</h1>
+    <p class="sub" id="shopSub">Spend coins on power-ups to use in battle.</p>
+    <div id="shopList"></div>
+    <div style="height:12px"></div>
+    <button class="btn ghost small" data-home>🏠 Back</button>
   </section>
 
 </div>
@@ -479,14 +579,58 @@ const RANKS = [
   {t:250, name:"Verb Grandmaster",  emoji:"🐉"}
 ];
 
+/* ---------------- STAGES (Adventure / story map) ---------------- */
+const STAGES = [
+  {name:"Ninja Academy",       boss:{name:"Sensei's Test",  ava:"🍃"}, len:8,  mode:"trans"},
+  {name:"Forest Training",     boss:{name:"Forest Beast",   ava:"🐗"}, len:8,  mode:"all"},
+  {name:"Chūnin Exams",        boss:{name:"Rival Genin",    ava:"🥷"}, len:10, mode:"all"},
+  {name:"Hidden Sand Village", boss:{name:"Sand Jinchūriki",ava:"🏜️"}, len:10, mode:"forms"},
+  {name:"Rescue Mission",      boss:{name:"Sound Ninja",    ava:"🎐"}, len:12, mode:"all"},
+  {name:"Akatsuki Hideout",    boss:{name:"Masked Akatsuki",ava:"👺"}, len:12, mode:"forms"},
+  {name:"Valley of the End",   boss:{name:"Rogue Shinobi",  ava:"🥷"}, len:14, mode:"all"},
+  {name:"Nine-Tails Showdown", boss:{name:"Nine-Tails Fox", ava:"🦊"}, len:16, mode:"all"}
+];
+
+/* ---------------- SHOP / POWER-UPS ---------------- */
+const ITEMS = {
+  fiftyfifty:{name:"Kunai Cut",   emoji:"✂️", price:30, desc:"Slice away two wrong answers."},
+  heal:      {name:"Ramen Bowl",  emoji:"🍜", price:25, desc:"Restore your spirit to full."},
+  shield:    {name:"Combo Shield",emoji:"🛡️", price:40, desc:"Your next wrong answer won't break your combo."},
+  double:    {name:"Double Power", emoji:"✨", price:50, desc:"Next correct answer scores double power."}
+};
+const COIN_PER_CORRECT=5, COIN_BOSS_BONUS=25;
+
 /* ---------------- SAVE ---------------- */
 const SAVE_KEY="vq_save_v1";
 let SAVE = load();
 function load(){
-  try{ return Object.assign({bestPower:0,totalCorrect:0,sound:true}, JSON.parse(localStorage.getItem(SAVE_KEY)||"{}")); }
-  catch(e){ return {bestPower:0,totalCorrect:0,sound:true}; }
+  let s={};
+  try{ s=JSON.parse(localStorage.getItem(SAVE_KEY)||"{}"); }catch(e){ s={}; }
+  s=Object.assign({bestPower:0,totalCorrect:0,sound:true,coins:0,stage:0}, s);
+  s.mastery = s.mastery || {};            // {verbN: 0..5}
+  s.stars   = s.stars   || {};            // {stageIdx: 0..3}
+  s.items   = Object.assign({fiftyfifty:1,heal:1,shield:0,double:0}, s.items||{}); // starter freebies
+  return s;
 }
 function persist(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); }catch(e){} }
+
+/* ---------------- mastery helpers (smart practice + Verbdex) ---------------- */
+function vmastery(n){ return SAVE.mastery[n]||0; }
+function medal(m){ return m>=5?"🥇":m>=3?"🥈":m>=1?"🥉":"⚪"; }
+function masteredCount(){ return VERBS.filter(v=>vmastery(v.n)>=5).length; }
+function capturedCount(){ return VERBS.filter(v=>vmastery(v.n)>=1).length; }
+/* weighted pick: weakest / unseen verbs come up more often */
+function smartPick(count){
+  const pool=VERBS.slice(), chosen=[];
+  while(chosen.length<count && pool.length){
+    const w=pool.map(v=>{ const m=vmastery(v.n); return (6-m)*(6-m)+1; });
+    let total=w.reduce((a,b)=>a+b,0), r=Math.random()*total, i=0;
+    for(;i<pool.length;i++){ r-=w[i]; if(r<=0) break; }
+    if(i>=pool.length) i=pool.length-1;
+    chosen.push(pool.splice(i,1)[0]);
+  }
+  return chosen;
+}
 
 /* ---------------- HELPERS ---------------- */
 const $=s=>document.querySelector(s);
@@ -648,15 +792,16 @@ let cfg={len:10,mode:"all",sound:true};
 /* ---------------- SCREENS ---------------- */
 function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active")); $("#"+id).classList.add("active"); window.scrollTo(0,0); }
 
-/* ---------------- HOME ---------------- */
+/* ---------------- HOME (hub) ---------------- */
+function currentRank(){ let cur=RANKS[0]; RANKS.forEach(r=>{ if(SAVE.totalCorrect>=r.t) cur=r; }); return cur; }
 function renderHome(){
-  // rank
-  let cur=RANKS[0];
-  RANKS.forEach(r=>{ if(SAVE.totalCorrect>=r.t) cur=r; });
-  $("#rankEmoji").textContent=cur.emoji;
-  $("#rankName").textContent=cur.name;
-  $("#bestPower").textContent=SAVE.bestPower.toLocaleString();
-  $("#totalCorrect").textContent=SAVE.totalCorrect;
+  const cur=currentRank();
+  const stagesClear=Object.values(SAVE.stars).filter(s=>s>=1).length;
+  $("#hubStat").innerHTML=
+    '<div class="chip">'+cur.emoji+' '+cur.name+'</div>'+
+    '<div class="chip">🪙 <b>'+SAVE.coins+'</b></div>'+
+    '<div class="chip">📒 <b>'+masteredCount()+'</b>/60</div>'+
+    '<div class="chip">⭐ <b>'+stagesClear+'</b>/'+STAGES.length+'</div>';
   const shelf=$("#rankShelf"); shelf.innerHTML="";
   RANKS.forEach(r=>{
     const unlocked=SAVE.totalCorrect>=r.t;
@@ -665,7 +810,6 @@ function renderHome(){
     d.textContent=r.emoji+" "+r.name+(unlocked?"":" 🔒");
     shelf.appendChild(d);
   });
-  // reflect sound setting
   cfg.sound=SAVE.sound;
   $("#soundSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on", (b.dataset.snd==="1")===SAVE.sound));
 }
@@ -683,20 +827,28 @@ wireSeg("#lenSeg","len",v=>cfg.len=+v);
 wireSeg("#modeSeg","mode",v=>cfg.mode=v);
 wireSeg("#soundSeg","snd",v=>{ cfg.sound=SAVE.sound=(v==="1"); persist(); });
 
-/* ---------------- START / RETRY ---------------- */
+/* ---------------- START / STAGE / RETRY ---------------- */
 $("#startBtn").addEventListener("click",()=>{
   audio(); sClick(); // unlock audio on gesture
   const types=TYPE_SETS[cfg.mode];
-  let verbs;
-  if(cfg.len>=60){ verbs=shuffle(VERBS); }
-  else { verbs=pick(VERBS,cfg.len); }
-  startRound(buildRound(verbs,types), false);
+  const verbs = cfg.len>=60 ? shuffle(VERBS) : smartPick(cfg.len); // smart practice: weak verbs come up more
+  startRound(buildRound(verbs,types), {});
 });
 
-function startRound(round, isRetry){
-  const boss=BOSSES[Math.floor(Math.random()*BOSSES.length)];
-  S={round, idx:0, score:0, combo:0, bestCombo:0, correct:0, missed:[],
-     total:round.length, bossHP:100, spirit:100, boss, isRetry, answered:false, bossKO:false};
+function startStage(idx){
+  audio(); const st=STAGES[idx];
+  const types=TYPE_SETS[st.mode]||TYPE_SETS.all;
+  const verbs = st.len>=60 ? shuffle(VERBS) : smartPick(st.len);
+  startRound(buildRound(verbs,types), {isStage:true, stageIdx:idx, boss:st.boss});
+}
+
+function startRound(round, opts){
+  opts=opts||{};
+  const boss=opts.boss || BOSSES[Math.floor(Math.random()*BOSSES.length)];
+  S={round, idx:0, score:0, combo:0, bestCombo:0, correct:0, missed:[], log:[],
+     total:round.length, bossHP:100, spirit:100, boss,
+     isRetry:!!opts.isRetry, isStage:!!opts.isStage, stageIdx:opts.stageIdx,
+     answered:false, bossKO:false, doubleActive:false, shieldActive:false, fiftyUsed:false};
   const ava=$("#bossAva");
   ava.textContent=boss.ava; ava.className="boss-ava idle";
   $("#bossName").textContent=boss.name;
@@ -719,6 +871,7 @@ function renderQuestion(){
   updateBars();
   $("#feedback").innerHTML="";
   $("#nextBtn").style.display="none";
+  S.fiftyUsed=false;
 
   const box=$("#answers");
   box.className="answers"+(q.opts.length===2?" two":"");
@@ -730,6 +883,42 @@ function renderQuestion(){
     b.addEventListener("click",()=>choose(b));
     box.appendChild(b);
   });
+  renderPowerups();
+}
+
+/* ---------------- POWER-UPS (battle) ---------------- */
+function renderPowerups(){
+  const box=$("#powerups"); if(!box) return; box.innerHTML="";
+  ["fiftyfifty","heal","shield","double"].forEach(key=>{
+    const ct=SAVE.items[key]||0; if(ct<=0) return;
+    const it=ITEMS[key];
+    const active=(key==="double"&&S.doubleActive)||(key==="shield"&&S.shieldActive);
+    const b=document.createElement("button"); b.className="pu";
+    b.innerHTML=it.emoji+' '+it.name+(active?' ✓':'')+' <span class="ct">'+ct+'</span>';
+    b.disabled = S.answered || active ||
+      (key==="fiftyfifty" && (S.fiftyUsed || (S.round[S.idx]&&S.round[S.idx].opts.length<=2)));
+    b.addEventListener("click",()=>usePowerup(key,b));
+    box.appendChild(b);
+  });
+}
+function usePowerup(key,btn){
+  if(S.answered) return;
+  const ct=SAVE.items[key]||0; if(ct<=0) return;
+  if(key==="fiftyfifty"){
+    const q=S.round[S.idx]; if(q.opts.length<=2 || S.fiftyUsed) return;
+    const wrong=[...document.querySelectorAll(".ans")].filter(b=>b.dataset.val!==q.correct && !b.disabled);
+    shuffle(wrong).slice(0,2).forEach(b=>{ b.disabled=true; b.style.opacity=".22"; });
+    S.fiftyUsed=true;
+  }else if(key==="heal"){
+    S.spirit=100; updateBars(); const p=center("#sp"); popText(p.x,p.y,"+spirit 🍜","green"); flash("rgba(55,226,154,.25)");
+  }else if(key==="shield"){
+    S.shieldActive=true; popText(innerWidth/2, innerHeight*0.3, "🛡️ Shield ready","blue");
+  }else if(key==="double"){
+    S.doubleActive=true; popText(innerWidth/2, innerHeight*0.3, "✨ Double ready","gold");
+  }
+  SAVE.items[key]=ct-1; persist();
+  sBadge(); if(btn) btn.classList.add("used");
+  renderPowerups();
 }
 function escapeHtml(s){ return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
@@ -752,8 +941,10 @@ function choose(btn){
   if(ok){
     const prevScore=S.score;
     S.correct++; S.combo++; S.bestCombo=Math.max(S.bestCombo,S.combo);
+    S.log.push({n:q.v.n, ok:true});
     const mult=1+Math.floor(S.combo/3)*0.5;
-    const gain=Math.round(100*mult);
+    let gain=Math.round(100*mult);
+    if(S.doubleActive){ gain*=2; S.doubleActive=false; popText(bossPos.x, bossPos.y-58, "✨ DOUBLE!", "gold"); }
     S.score+=gain;
     S.bossHP=Math.max(0, S.bossHP - (100/Math.max(1,Math.ceil(S.total*0.75)))); // ~75% correct defeats the boss
     S.spirit=Math.min(100, S.spirit+8);
@@ -770,7 +961,9 @@ function choose(btn){
     if(S.combo>0 && S.combo%3===0){ specialMove(); }
     if(S.bossHP<=0.5 && !S.bossKO){ S.bossKO=true; bossDefeatFx(); }
   }else{
-    S.combo=0;
+    S.log.push({n:q.v.n, ok:false});
+    if(S.shieldActive){ S.shieldActive=false; const cp=center("#combo"); popText(cp.x, cp.y, "🛡️ Combo saved!", "blue"); }
+    else { S.combo=0; }
     S.spirit=Math.max(0, S.spirit-18);
     S.missed.push({v:q.v, type:q.type});
     sWrong();
@@ -782,7 +975,7 @@ function choose(btn){
     fb.innerHTML='<div class="fbmsg bad">Nicht ganz!</div><div class="fbsmall">Correct answer: <b style="color:var(--green)">'+escapeHtml(q.correct)+'</b></div>';
   }
   $("#power").textContent=S.score.toLocaleString();
-  updateCombo(true); updateBars();
+  updateCombo(true); updateBars(); renderPowerups();
   const nb=$("#nextBtn");
   nb.textContent = (S.idx+1>=S.total) ? "See results ▶" : "Weiter ▶";
   nb.style.display="block";
@@ -850,15 +1043,46 @@ function endRound(){
   const pct=Math.round(100*S.correct/S.total);
   const flawless = S.correct===S.total;
   const bossDown = S.bossKO;
+  const idx=S.stageIdx;
 
-  // persist progress
+  // smart practice: update each verb's mastery from this round
+  S.log.forEach(e=>{ const m=vmastery(e.n); SAVE.mastery[e.n]= e.ok ? Math.min(5,m+1) : Math.max(0,m-1); });
+
+  // coins
+  let coinsEarned = S.correct*COIN_PER_CORRECT + (bossDown?COIN_BOSS_BONUS:0);
+
+  // progress
   SAVE.totalCorrect += S.correct;
   if(S.score>SAVE.bestPower) SAVE.bestPower=S.score;
+
+  // stage clear / stars / unlock
+  let stars=0, cleared=false;
+  if(S.isStage){
+    stars = pct>=100?3 : pct>=80?2 : pct>=60?1 : 0;
+    if(bossDown && stars<1) stars=1;
+    cleared = stars>=1;
+    if(cleared){
+      coinsEarned += 20 + idx*10;
+      SAVE.stars[idx]=Math.max(SAVE.stars[idx]||0, stars);
+      if(idx===SAVE.stage && idx<STAGES.length-1) SAVE.stage=idx+1;
+    }
+  }
+  SAVE.coins += coinsEarned;
   persist();
 
-  $("#resTag").textContent = S.isRetry ? "Rematch complete" : "Mission complete";
-  $("#resTitle").textContent = bossDown ? "Boss Defeated! 🏆" : (pct>=60 ? "Victory! ⚔️" : "Keep Training! 💪");
+  // header
+  if(S.isStage){
+    let s=""; for(let i=0;i<3;i++) s+= (i<stars?"⭐":"☆");
+    $("#stageStars").textContent=s; $("#stageStars").style.display="block";
+    $("#resTag").textContent = cleared ? "Stage cleared" : "Stage not cleared";
+    $("#resTitle").textContent = cleared ? (STAGES[idx].name+" cleared!") : "Train harder! 💪";
+  }else{
+    $("#stageStars").style.display="none";
+    $("#resTag").textContent = S.isRetry ? "Rematch complete" : "Mission complete";
+    $("#resTitle").textContent = bossDown ? "Boss Defeated! 🏆" : (pct>=60 ? "Victory! ⚔️" : "Keep Training! 💪");
+  }
   $("#perfectBanner").style.display = flawless ? "block" : "none";
+  $("#coinLine").textContent="🪙 +"+coinsEarned+" coins  ·  total "+SAVE.coins;
 
   $("#rScore").textContent=S.score.toLocaleString();
   $("#rPct").textContent=pct+"%";
@@ -897,11 +1121,18 @@ function endRound(){
     $("#retryBtn").style.display="block";
   }
 
+  // result buttons (different for Adventure stages vs Quick battles)
+  const hasNext = S.isStage && cleared && (idx+1)<STAGES.length;
+  $("#nextStageBtn").style.display = hasNext ? "block":"none";
+  if(hasNext) $("#nextStageBtn").dataset.next=idx+1;
+  $("#mapBtn").style.display = S.isStage ? "block":"none";
+  $("#againBtn").style.display = S.isStage ? "none":"block";
+
   show("results");
   // celebratory finish
-  if(pct>=60 || bossDown){ confetti(); sVictory(); if(realAch) setTimeout(sBadge,650); }
+  if(cleared || (!S.isStage && (pct>=60 || bossDown))){ confetti(); sVictory(); if(realAch) setTimeout(sBadge,650); }
   else { sLowSpirit(); }
-  renderHome(); // refresh trainer card behind the scenes
+  renderHome(); // refresh hub stats behind the scenes
 }
 
 /* retry only missed */
@@ -909,10 +1140,76 @@ $("#retryBtn").addEventListener("click",()=>{
   const seen=new Set(); const items=[];
   S.missed.forEach(m=>{ const k=m.v.n+"-"+m.type; if(!seen.has(k)){ seen.add(k); items.push(m);} });
   const round=items.map(m=>makeQuestion(m.v,m.type));
-  sClick(); startRound(round, true);
+  sClick(); startRound(round, {isRetry:true});
 });
-$("#againBtn").addEventListener("click",()=>{ sClick(); show("home"); renderHome(); });
+$("#nextStageBtn").addEventListener("click",()=>{ sClick(); startStage(+$("#nextStageBtn").dataset.next); });
+$("#mapBtn").addEventListener("click",()=>{ sClick(); show("map"); renderMap(); });
+$("#againBtn").addEventListener("click",()=>{ sClick(); show("quick"); });
 $("#homeBtn").addEventListener("click",()=>{ sClick(); show("home"); renderHome(); });
+
+/* ---------------- HUB NAVIGATION ---------------- */
+$("#goAdventure").addEventListener("click",()=>{ audio(); sClick(); show("map"); renderMap(); });
+$("#goQuick").addEventListener("click",()=>{ audio(); sClick(); show("quick"); });
+$("#goVerbdex").addEventListener("click",()=>{ audio(); sClick(); show("verbdex"); renderVerbdex(); });
+$("#goShop").addEventListener("click",()=>{ audio(); sClick(); show("shop"); renderShop(); });
+document.querySelectorAll("[data-home]").forEach(b=>
+  b.addEventListener("click",()=>{ sClick(); show("home"); renderHome(); }));
+
+/* ---------------- ADVENTURE MAP ---------------- */
+function renderMap(){
+  const list=$("#mapList"); list.innerHTML="";
+  STAGES.forEach((st,idx)=>{
+    const unlocked = idx<=SAVE.stage;
+    const stars=SAVE.stars[idx]||0;
+    let starStr=""; for(let i=0;i<3;i++) starStr+= (i<stars?"⭐":"☆");
+    const card=document.createElement("div");
+    card.className="stagecard"+(unlocked?"":" locked")+(stars>=1?" cleared":"");
+    card.innerHTML='<div class="sava">'+(unlocked?st.boss.ava:"🔒")+'</div>'+
+      '<div><div class="sname">'+(idx+1)+'. '+escapeHtml(st.name)+'</div>'+
+      '<div class="smeta">'+escapeHtml(st.boss.name)+' · '+st.len+' questions</div></div>'+
+      '<div class="sstars">'+starStr+'</div>';
+    if(unlocked) card.addEventListener("click",()=>{ sClick(); startStage(idx); });
+    list.appendChild(card);
+  });
+}
+
+/* ---------------- VERBDEX ---------------- */
+function renderVerbdex(){
+  $("#dexSub").textContent="Mastered "+masteredCount()+"/60 · Captured "+capturedCount()+"/60 — tap a card to see its forms.";
+  const g=$("#dexGrid"); g.innerHTML="";
+  VERBS.forEach(v=>{
+    const m=vmastery(v.n);
+    const card=document.createElement("div");
+    card.className="dexcard"+(m>=5?" m5":m>=3?" m3":m>=1?" m1":"");
+    card.innerHTML='<div class="dh">#'+v.n+' '+escapeHtml(v.inf)+'<span class="mdl">'+medal(m)+'</span></div>'+
+      '<div class="den">'+escapeHtml(v.en)+'</div>'+
+      '<div class="forms">er '+escapeHtml(v.present)+' · '+escapeHtml(v.praet)+' · <span class="aux">'+escapeHtml(v.perfect)+'</span></div>';
+    card.addEventListener("click",()=>{ card.classList.toggle("open"); sClick(); });
+    g.appendChild(card);
+  });
+}
+
+/* ---------------- SHOP ---------------- */
+function renderShop(){
+  $("#shopSub").innerHTML="You have 🪙 <b style=\"color:var(--gold)\">"+SAVE.coins+"</b> coins. Earn more by answering correctly in battle!";
+  const list=$("#shopList"); list.innerHTML="";
+  Object.keys(ITEMS).forEach(key=>{
+    const it=ITEMS[key], owned=SAVE.items[key]||0, can=SAVE.coins>=it.price;
+    const row=document.createElement("div"); row.className="shopitem";
+    row.innerHTML='<div class="ico">'+it.emoji+'</div>'+
+      '<div class="info"><div class="iname">'+it.name+'</div><div class="idesc">'+it.desc+'</div><div class="own">Owned: '+owned+'</div></div>'+
+      '<button class="btn buy'+(can?"":" ghost")+'" data-buy="'+key+'"'+(can?"":" disabled")+'>🪙 '+it.price+'</button>';
+    list.appendChild(row);
+  });
+  list.querySelectorAll("[data-buy]").forEach(b=> b.addEventListener("click",()=>buyItem(b.dataset.buy)));
+}
+function buyItem(key){
+  const it=ITEMS[key]; if(!it) return;
+  if(SAVE.coins<it.price){ sWrong(); return; }
+  SAVE.coins-=it.price; SAVE.items[key]=(SAVE.items[key]||0)+1; persist();
+  sBadge(); burst(innerWidth/2, innerHeight*0.3, {count:16, speed:6, emojis:["🪙","✨"], size:22, life:42});
+  renderShop();
+}
 
 /* ---------------- KEYBOARD ---------------- */
 document.addEventListener("keydown",e=>{
