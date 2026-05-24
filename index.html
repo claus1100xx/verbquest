@@ -310,6 +310,15 @@
   .shopitem .own{color:var(--gold); font-size:12px; font-weight:bold; margin-top:3px}
   .shopitem .buy{flex:0 0 auto; padding:12px 14px; font-size:14px; width:auto}
 
+  /* ===== speak (text-to-speech) buttons ===== */
+  .spk{display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:999px;
+    border:2px solid var(--line); background:#0e1430; color:var(--ink); font-weight:bold; font-size:15px; cursor:pointer; transition:.12s}
+  .spk:hover{border-color:var(--blue); transform:translateY(-1px)}
+  .spk:active{transform:translateY(1px)}
+  .spk.mini{padding:5px 9px; font-size:13px}
+  .spk.speaking{border-color:var(--blue); box-shadow:0 0 16px rgba(46,197,255,.55)}
+  #qspk{margin-top:10px}
+
   /* ===== iPad / tablet LANDSCAPE: use the wide space so nothing scrolls ===== */
   @media (orientation:landscape) and (min-width:680px){
     #app{max-width:1060px;
@@ -440,6 +449,7 @@
       <div class="qkind" id="qkind">Präteritum</div>
       <div class="qprompt" id="qprompt">anfangen</div>
       <div class="qhint" id="qhint">to begin</div>
+      <button class="spk" id="qspk" type="button" style="display:none">🔊 Hören</button>
     </div>
 
     <div class="answers" id="answers"></div>
@@ -730,6 +740,37 @@ const sBossDown=()=>{ const t=now(); noise(t,0.5,0.24,1300,55);                 
 const sBadge   =()=>{ const t=now(); melody([1047,1319,1568,2093],t,0.11,"triangle",0,0.13); };
 const sLowSpirit=()=>{ const t=now(); tone(440,330,t,0.18,"sine",0.12); tone(330,233,t+0.16,0.24,"sine",0.12); };
 
+/* ---------------- SPEECH (hear the German verbs) ---------------- */
+const TTS = (typeof window!=="undefined") && ("speechSynthesis" in window);
+let deVoice=null;
+function pickVoice(){
+  if(!TTS) return;
+  try{ const vs=speechSynthesis.getVoices();
+    deVoice = vs.find(v=>/^de([-_]|$)/i.test(v.lang)) || vs.find(v=>/german|deutsch/i.test(v.name)) || null;
+  }catch(e){}
+}
+if(TTS){ pickVoice(); try{ speechSynthesis.addEventListener("voiceschanged", pickVoice); }catch(e){} }
+function speak(text, btn){
+  if(!TTS || !text) return;
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang="de-DE"; if(deVoice) u.voice=deVoice; u.rate=0.85; u.pitch=1;
+    if(btn){ btn.classList.add("speaking"); u.onend=u.onerror=()=>btn.classList.remove("speaking"); }
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+/* read a verb's full set of forms aloud (great for study) */
+function speakForms(v, btn){ speak(v.inf+". "+v.present+". "+v.praet+". "+v.perfect+".", btn); }
+/* make a small speaker button that reads German `text` (or full forms if verb passed) */
+function speakBtn(opts){
+  const b=document.createElement("button");
+  b.type="button"; b.className="spk mini"+(opts.cls?(" "+opts.cls):""); b.textContent="🔊";
+  b.setAttribute("aria-label","Hören");
+  b.addEventListener("click",e=>{ e.stopPropagation(); opts.verb? speakForms(opts.verb,b) : speak(opts.text,b); });
+  return b;
+}
+
 /* ---------------- VISUAL FX (canvas particles + popups) ---------------- */
 const fx=$("#fx"), fxc=fx.getContext("2d");
 let parts=[], fxOn=false;
@@ -883,6 +924,11 @@ function renderQuestion(){
     b.addEventListener("click",()=>choose(b));
     box.appendChild(b);
   });
+  // speaker: hear the German verb (hidden for English→German so it can't reveal the answer)
+  const qs=$("#qspk");
+  if(TTS && q.type!=="en2de"){ qs.style.display="inline-flex"; qs.classList.remove("speaking");
+    qs.onclick=()=>speak(q.v.inf, qs); }
+  else { qs.style.display="none"; }
   renderPowerups();
 }
 
@@ -974,6 +1020,8 @@ function choose(btn){
     if(S.spirit<=0) setTimeout(sLowSpirit,250);
     fb.innerHTML='<div class="fbmsg bad">Nicht ganz!</div><div class="fbsmall">Correct answer: <b style="color:var(--green)">'+escapeHtml(q.correct)+'</b></div>';
   }
+  if(TTS){ const sb=document.createElement("button"); sb.type="button"; sb.className="spk mini";
+    sb.style.marginTop="6px"; sb.textContent="🔊 Hören"; sb.addEventListener("click",()=>speakForms(q.v,sb)); fb.appendChild(sb); }
   $("#power").textContent=S.score.toLocaleString();
   updateCombo(true); updateBars(); renderPowerups();
   const nb=$("#nextBtn");
@@ -1116,6 +1164,7 @@ function endRound(){
       const d=document.createElement("div"); d.className="item";
       d.innerHTML='<div class="w">'+escapeHtml(v.inf)+' <em>— '+escapeHtml(v.en)+'</em></div>'+
         '<div class="f">er '+escapeHtml(v.present)+' · '+escapeHtml(v.praet)+' · <span class="aux">'+escapeHtml(v.perfect)+'</span></div>';
+      if(TTS){ const sb=speakBtn({verb:v}); sb.style.marginTop="6px"; d.appendChild(sb); }
       rev.appendChild(d);
     });
     $("#retryBtn").style.display="block";
@@ -1181,9 +1230,10 @@ function renderVerbdex(){
     const m=vmastery(v.n);
     const card=document.createElement("div");
     card.className="dexcard"+(m>=5?" m5":m>=3?" m3":m>=1?" m1":"");
-    card.innerHTML='<div class="dh">#'+v.n+' '+escapeHtml(v.inf)+'<span class="mdl">'+medal(m)+'</span></div>'+
+    card.innerHTML='<div class="dh"><span style="flex:1">#'+v.n+' '+escapeHtml(v.inf)+'</span><span class="mdl">'+medal(m)+'</span></div>'+
       '<div class="den">'+escapeHtml(v.en)+'</div>'+
       '<div class="forms">er '+escapeHtml(v.present)+' · '+escapeHtml(v.praet)+' · <span class="aux">'+escapeHtml(v.perfect)+'</span></div>';
+    if(TTS) card.querySelector(".dh").insertBefore(speakBtn({verb:v}), card.querySelector(".mdl"));
     card.addEventListener("click",()=>{ card.classList.toggle("open"); sClick(); });
     g.appendChild(card);
   });
